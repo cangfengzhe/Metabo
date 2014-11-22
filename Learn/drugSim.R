@@ -1,10 +1,12 @@
-drugFinger <- read.csv("C:\\Users\\Administrator\\Desktop\\similar\\drug_fingerprint.csv", header = F)  #药物指纹图谱
+drugFinger <- read.csv("C:\\Users\\Administrator\\Desktop\\similar\\drug_fingerprint.csv", 
+    header = F)  #药物指纹图谱
 drugTarget <- read.csv("E:\\code\\drugTarget\\drugTarget.csv")  #药物-靶点相互关系
 colnames(drugTarget) <- c("drugTargetID", "drugID", "targetID", "action")
 colnames(drugTarget)
 
 library(RMySQL)
-conMysql <- dbConnect(dbDriver("MySQL"), dbname = "drugTarget", user = "root", password = "12345678")
+conMysql <- dbConnect(dbDriver("MySQL"), dbname = "drugTarget", user = "root", 
+    password = "12345678")
 dbWriteTable(conMysql, "drugTarget", drugTarget)
 drugTarget2 <- matrix(data = NA, 17591346, 12)
 rm(drugTarget2)

@@ -1,7 +1,8 @@
 library(RCytoscape)
 g <- new("graphNEL", edgemode = "directed")
 # 定义节点属性 分子类型
-g <- initNodeAttribute(graph = g, attribute.name = "moleculeType", attribute.type = "char", default.value = "undefined")
+g <- initNodeAttribute(graph = g, attribute.name = "moleculeType", attribute.type = "char", 
+    default.value = "undefined")
 g <- initNodeAttribute(graph = g, "lfc", "numeric", 0)
 
 g <- addNode("A", g)
@@ -25,6 +26,7 @@ setDefaultNodeColor(cw, "#AAFF88")
 
 displayGraph(cw)
 # 根据lfc取值，对node进行颜色处理
-setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", "#FF0000"), mode = "interpolate")
+setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", "#FF0000"), 
+    mode = "interpolate")
 # 重画
 redraw(cw) 

@@ -85,9 +85,3 @@ for (ii in 1: length(proerrorID) )#length(proteinWord)
   
 }
 
-save(gene,protein,file='xxPmid.rdata')
-load('xxPmid.rdata')
-geneID<-unique(gene[,2])
-proteinID<-unique(protein[,2])
-View(proteinID)
-class(geneID)

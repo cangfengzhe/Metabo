@@ -1,9 +1,9 @@
 install.packages("koRpus")
 library(koRpus)
-# set.kRp.env(TT.cmd='C:\\TreeTagger\\bin\\tree-tagger.exe')#useless parse the
-# file test.txt,important step
-tagged.results <- treetag("test.txt", treetagger = "manual", lang = "en", TT.options = list(path = "C:\\TreeTagger", 
-    preset = "en"))
+# set.kRp.env(TT.cmd='C:\\TreeTagger\\bin\\tree-tagger.exe')#useless
+# parse the file test.txt,important step
+tagged.results <- treetag("test.txt", treetagger = "manual", lang = "en", 
+    TT.options = list(path = "C:\\TreeTagger", preset = "en"))
 # 'test.txt' indicate the path of file that you need
 test <- tagged.results@TT.res
 # @ indicate the data.frame,lttr indicate the length of word
@@ -21,8 +21,8 @@ data("crude")
 crude[[1]]
 stemDocument(crude[[1]])
 data("crude")
-## Document access triggers the stemming function (i.e., all other documents are not
-## stemmed yet)
+## Document access triggers the stemming function (i.e., all other
+## documents are not stemmed yet)
 tm_map(crude, stemDocument, lazy = TRUE)[[1]]
 crude[[2]]
 ## Use wrapper to apply character processing

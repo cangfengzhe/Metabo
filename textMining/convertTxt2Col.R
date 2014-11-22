@@ -1,5 +1,5 @@
-# covert the text to a column of word, meanwhile transforming the stem of words by using
-# the package of tm
+# covert the text to a column of word, meanwhile transforming the stem of
+# words by using the package of tm
 library(XML)
 library(tm)
 cbtxt1 = NA

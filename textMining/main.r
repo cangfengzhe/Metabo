@@ -1,4 +1,4 @@
-#修正文件见pubmed.R
+# 修正文件见pubmed.R
 load("stroke.rdata")
 library(ff)
 library(ffbase)
@@ -28,5 +28,4 @@ for (ii in 1:100) {
     })
     
 }
-length(stroke)
- 
+length(stroke) 

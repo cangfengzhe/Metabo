@@ -1,4 +1,5 @@
 ---
+laout: post
 title: "first markdown"
 author: "Li Pidong"
 date: "Tuesday, November 18, 2014"

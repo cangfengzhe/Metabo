@@ -1,8 +1,8 @@
-###copy the file
+### copy the file
 
-for (ii in nrow(file)){
-  fileNameA<-paste(c(''),collapse = '')
-  
+for (ii in nrow(file)) {
+    fileNameA <- paste(c(""), collapse = "")
+    
 }
-aa<-dir('D:\\deskTop\\xiaobai\\')
-View(aa)
+aa <- dir("D:\\deskTop\\xiaobai\\")
+View(aa) 

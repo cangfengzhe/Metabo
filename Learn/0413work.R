@@ -54,7 +54,8 @@ wilcox.test(V1, V2)
 
 
 # fisher exact test
-zuoye05 = matrix(c(4, 5, 18, 6), 2, 2, dimnames = list(c("pre", "nonpre"), c("+", "-")))
+zuoye05 = matrix(c(4, 5, 18, 6), 2, 2, dimnames = list(c("pre", "nonpre"), 
+    c("+", "-")))
 zuoye05
 fisher.test(zuoye05, alternative = "t", simulate.p.value = T, B = 10000)
 detach()

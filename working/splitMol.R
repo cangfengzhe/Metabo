@@ -36,5 +36,3 @@ data[1, 1]
 newName
 dir[1]
 read.table("Clipboarel", header = "T") 
-
-
