@@ -38,3 +38,11 @@ hist(data[, 3])
 rocData <- read.csv('result//final//network//roc.csv', stringsAsFactors=F, header = F)
 
 roc(response = rocData[,3], predictor = rocData[,2], plot=T)
+
+
+
+data(aSAH)
+View(aSAH)
+# Basic example
+roc(aSAH$outcome, aSAH$s100b,
+    levels=c("Good", "Poor"), plot=T)

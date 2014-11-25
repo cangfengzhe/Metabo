@@ -8,20 +8,20 @@ molCount <- read.csv("result//final//network//molCount.csv", stringsAsFactors = 
 molSym <- read.csv("result//final//network//molSym.csv", stringsAsFactors = F)
 
 View(molCount)
-yuzhi <- 0.10989
+yuzhi <- 0
 
 score <- function(yuzhi) {
-   require(sqldf)
+  
     svddYuzhi <- svdd[svdd[, 2] >= yuzhi, ]
-    molSymYuzhi <- molSym[molSym[, 2] >= yuzhi, ]
+    molSymYuzhi <- molSym[molSym10052-549[, 2] >= yuzhi, ]
     out <- list()
     #阈值以上有症状的分子数目
     out$molSymCount <- nrow(molSymYuzhi)
     outlier <- data.frame(id = setdiff(svddYuzhi[, 1], molSymYuzhi[, 1]))
     # outlier中分子的pmid数目  
     
-    outlier[, 1] <- as.character(outlier[, 1])
-    outlierLitCount <- sqldf("select * from outlier left join molCount\n                         on outlier.id=molCount.ID")
+#     outlier[, 1] <- as.character(outlier[, 1])
+    outlierLitCount <- sqldf("select * from outlier left join molCount on outlier.id=molCount.ID")
     
     outlierCount <- nrow(outlierLitCount)
     outlierYouwenxian <- nrow(na.omit(outlierLitCount))
@@ -31,9 +31,23 @@ score <- function(yuzhi) {
     
 }
 
+
 score(0.0)
 
-svddLit <- sqldf("select * from svdd left join molCount\n                      on svdd.ID=molCount.ID")
+
+
+x <- mapply(score,seq(0,0.26627,0.001))
+
+y <- t(x)
+View(y)
+plot(y)
+plot(x$scoreYuzhi,mapply(score,seq(0,0.26627,0.001))$molSymCount, type='l')
+
+plot(y, type='l', col='red')
+
+str(x)
+
+svddLit <- sqldf("select * from svdd left join molCount on svdd.ID=molCount.ID")
 svddLitCount <- nrow(svddLit)
 svddYouwenxianCount <- nrow(na.omit(svddLit))
 scoreAll <- svddYouwenxianCount/svddLitCount 

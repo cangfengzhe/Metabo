@@ -225,7 +225,7 @@ for (geneName in FilterGene[,1]){
 
 #寻找基因两两关系
 
-intersect(aa,aa)
+
 kk<-0;
 ii=0
 commom<-matrix(NA,1000,3)
