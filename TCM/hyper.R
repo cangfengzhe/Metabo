@@ -105,7 +105,4 @@ rate <- function(value) {
 }
 rate(0.01)
 
-aa <- mapply(rate, seq(0.1, 1e-04, -1e-04))
-
-
- 
+aa <- mapply(rate, seq(0.1, 1e-04, -1e-04)) 

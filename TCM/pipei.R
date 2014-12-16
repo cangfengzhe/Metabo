@@ -1,5 +1,4 @@
-# 大于10000�<U+383C><U+3E34>200多个mol与all mesh pipei Signs and
-# Symptoms
+# 大于10000�<U+383C><U+3E34>200多个mol与all mesh pipei Signs and Symptoms
 
 
 errorRes <- matrix(NA, 10000, 2)
@@ -72,9 +71,9 @@ for (ii in 169:nrow(molCount)) {
     
     tryCatch({
         
-        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", molName, 
-            "\" [Title/Abstract]) AND ", "(\"", meshName, "\" [MeSH Terms] OR \"", 
-            meshName, "\"[Title/Abstract])"), collapse = "")
+        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", molName, "\" [Title/Abstract]) AND ", 
+            "(\"", meshName, "\" [MeSH Terms] OR \"", meshName, "\"[Title/Abstract])"), 
+            collapse = "")
         pmid <- downloadPmid(prestr)
         if (is.matrix(pmid)) {
             # kk<-kk+1; pmid0<-paste(pmid,collapse = ',');

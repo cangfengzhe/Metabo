@@ -15,8 +15,7 @@ drugSymptomCount <- sqldf("select drug_symptom_count.* from drug_symptom_count \
 molSym <- read.csv("./result/final//molSymAll.csv", stringsAsFactors = F)
 View(molSym)
 View(drugSymptomCount)
-# drug_symptom_count_mat<-matrix(as.numeric(drugSymptomCount[,1:3]),ncol
-# = 3)
+# drug_symptom_count_mat<-matrix(as.numeric(drugSymptomCount[,1:3]),ncol = 3)
 
 
 
@@ -61,8 +60,7 @@ for (ii in 1:(nrow(sparseMat2) - 1)) {
     for (jj in (ii + 1):nrow(sparseMat2)) {
         nn <- nn + 1
         sum_xy <- sum(sparseMat2[ii, ] * sparseMat2[jj, ])
-        sum_x2y2 <- sqrt(sum(sparseMat2[ii, ]^2)) * sqrt(sum(sparseMat2[jj, 
-            ]^2))
+        sum_x2y2 <- sqrt(sum(sparseMat2[ii, ]^2)) * sqrt(sum(sparseMat2[jj, ]^2))
         cos[nn, 1] <- ii
         cos[nn, 2] <- jj
         cos[nn, 3] <- sum_xy
@@ -90,8 +88,6 @@ drugSymSimilarAll <- na.omit(drugSymSimilarAll)
 save(drugSymCos, sparseMat2, drugSimpID, drugSymSimilarAll, file = "drugsimilar.rdata")
 
 nrow(drugSymSimilarAll)
-drugSymSimilarAll_nor0 <- drugSymSimilarAll[drugSymSimilarAll[, 5] != 0, 
-    ]
+drugSymSimilarAll_nor0 <- drugSymSimilarAll[drugSymSimilarAll[, 5] != 0, ]
 View(drugSymSimilarAll_nor0)
-write.csv(drugSymSimilarAll_nor0, file = "./result/final/drugSymSimilarAll_1112.csv")
- 
+write.csv(drugSymSimilarAll_nor0, file = "./result/final/drugSymSimilarAll_1112.csv") 

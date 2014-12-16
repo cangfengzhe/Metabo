@@ -11,8 +11,8 @@ meshError <- NA
 n <- 0
 for (ii in 1:nrow(meshWan)) {
     tryCatch({
-        str <- paste(meshWan[ii, 3], "<-downloadPmid(\"", meshWan[ii, 1], 
-            "\")", collapse = "")
+        str <- paste(meshWan[ii, 3], "<-downloadPmid(\"", meshWan[ii, 1], "\")", 
+            collapse = "")
         eval(parse(text = str))
         print(ii)
     }, error = function(e) {

@@ -16,7 +16,4 @@ randomAbstract <- unique(randomAbstract)
 randomAbstract <- randomAbstract[, c(8, 9, 3, 4, 5, 6, 7)]
 randomAbstract1 <- randomAbstract[randomAbstract[, 5] != "", ]
 randomAbstract <- randomAbstract1[1:2000, ]
-View(randomAbstract)
-
-
- 
+View(randomAbstract) 

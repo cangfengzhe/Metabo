@@ -29,8 +29,8 @@ for (ii in 3:nrow(target)) {
         
         tryCatch({
             
-            prestr = paste(c("\"", molName, "\"[Title/Abstract]", " AND ", 
-                meshName), collapse = "")
+            prestr = paste(c("\"", molName, "\"[Title/Abstract]", " AND ", meshName), 
+                collapse = "")
             pmid <- downloadPmid(prestr)
             if (is.matrix(pmid)) {
                 kk <- kk + 1
@@ -97,8 +97,8 @@ for (ii in 1:nrow(target)) {
         
         tryCatch({
             
-            prestr = paste(c("\"", molName, "\"[Title/Abstract]", " AND \"", 
-                meshName, "\"[Title/Abstract]"), collapse = "")
+            prestr = paste(c("\"", molName, "\"[Title/Abstract]", " AND \"", meshName, 
+                "\"[Title/Abstract]"), collapse = "")
             pmid <- downloadPmid(prestr)
             if (is.matrix(pmid)) {
                 kk <- kk + 1

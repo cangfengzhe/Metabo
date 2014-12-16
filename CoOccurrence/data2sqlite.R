@@ -39,8 +39,8 @@ willeyFullText <- function(keyWord_1, keyWord_2) {
         
         
         litNum <- 1
-        url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, 
-            litNum, "&ordering=relevancy&publicationFacet=journal"), collapse = "")
+        url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, litNum, 
+            "&ordering=relevancy&publicationFacet=journal"), collapse = "")
         webContent <- readLines(url, encoding = "UTF-8")
         
         text <- paste(webContent, collapse = "")  #多行文本连成一行，有利于使用正则表达式
@@ -55,8 +55,8 @@ willeyFullText <- function(keyWord_1, keyWord_2) {
             print("NA")
         } else if (as.numeric(num) <= 20) {
             result <- getContent(text)
-            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), 
-                keyword2 = rep(keyWord_2, nrow(result)))
+            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), keyword2 = rep(keyWord_2, 
+                nrow(result)))
             result <- cbind(keyword, result)
             # result<-as.ffdf(result)
             flag <- dbWriteTable(sqlite, "shenglixue", result, append = T)
@@ -64,8 +64,8 @@ willeyFullText <- function(keyWord_1, keyWord_2) {
         } else {
             num <- as.numeric(num)
             result <- getContent(text)
-            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), 
-                keyword2 = rep(keyWord_2, nrow(result)))
+            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), keyword2 = rep(keyWord_2, 
+                nrow(result)))
             result <- cbind(keyword, result)
             flag <- dbWriteTable(sqlite, "shenglixue", result, append = T)
             logStr <- paste(c("insert into logshengli values (\"", keyWord_1, 
@@ -76,9 +76,8 @@ willeyFullText <- function(keyWord_1, keyWord_2) {
             for (ii in 1:pageNum) {
                 
                 litNum <- ii * 20 + 1
-                url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, 
-                  urlStr_3, litNum, "&ordering=relevancy&publicationFacet=journal"), 
-                  collapse = "")
+                url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, 
+                  litNum, "&ordering=relevancy&publicationFacet=journal"), collapse = "")
                 webContent <- readLines(url, encoding = "UTF-8")
                 
                 text <- paste(webContent, collapse = "")
@@ -90,8 +89,7 @@ willeyFullText <- function(keyWord_1, keyWord_2) {
                 # print(date())
                 flag <- dbWriteTable(sqlite, "shenglixue", result, append = T)
                 logStr <- paste(c("insert into logshengli values (\"", keyWord_1, 
-                  "\",\"", keyWord_2, "\",", ii, ",", nrow(result), ")"), 
-                  collapse = "")
+                  "\",\"", keyWord_2, "\",", ii, ",", nrow(result), ")"), collapse = "")
                 flag <- dbGetQuery(sqlite, logStr)
                 print(paste(ii, "/", pageNum, "/", nrow(result)))
             }
@@ -133,8 +131,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
         
         
         litNum <- 1
-        url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, 
-            litNum, "&ordering=relevancy&publicationFacet=journal"), collapse = "")
+        url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, litNum, 
+            "&ordering=relevancy&publicationFacet=journal"), collapse = "")
         webContent <- readLines(url, encoding = "UTF-8")
         
         text <- paste(webContent, collapse = "")  #多行文本连成一行，有利于使用正则表达式
@@ -149,8 +147,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
             print("NA")
         } else if (as.numeric(num) <= 20) {
             result <- getContent(text)
-            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), 
-                keyword2 = rep(keyWord_2, nrow(result)))
+            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), keyword2 = rep(keyWord_2, 
+                nrow(result)))
             result <- cbind(keyword, result)
             # result<-as.ffdf(result)
             flag <- dbWriteTable(sqlite, "shenglixuewater", result, append = T)
@@ -158,8 +156,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
         } else {
             num <- as.numeric(num)
             result <- getContent(text)
-            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), 
-                keyword2 = rep(keyWord_2, nrow(result)))
+            keyword <- data.frame(keyword1 = rep(keyWord_1, nrow(result)), keyword2 = rep(keyWord_2, 
+                nrow(result)))
             result <- cbind(keyword, result)
             flag <- dbWriteTable(sqlite, "shenglixuewater", result, append = T)
             logStr <- paste(c("insert into logshengliwater values (\"", keyWord_1, 
@@ -170,9 +168,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
             for (ii in 1:pageNum) {
                 
                 litNum <- ii * 20 + 1
-                url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, 
-                  urlStr_3, litNum, "&ordering=relevancy&publicationFacet=journal"), 
-                  collapse = "")
+                url <- paste(c(urlStr_1, keyWord_1, urlStr_2, keyWord_2, urlStr_3, 
+                  litNum, "&ordering=relevancy&publicationFacet=journal"), collapse = "")
                 webContent <- readLines(url, encoding = "UTF-8")
                 
                 text <- paste(webContent, collapse = "")
@@ -183,9 +180,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
                 result <- cbind(keyword, result)
                 # print(date())
                 flag <- dbWriteTable(sqlite, "shenglixuewater", result, append = T)
-                logStr <- paste(c("insert into logshengliwater values (\"", 
-                  keyWord_1, "\",\"", keyWord_2, "\",", ii, ",", nrow(result), 
-                  ")"), collapse = "")
+                logStr <- paste(c("insert into logshengliwater values (\"", keyWord_1, 
+                  "\",\"", keyWord_2, "\",", ii, ",", nrow(result), ")"), collapse = "")
                 flag <- dbGetQuery(sqlite, logStr)
                 print(paste(ii, "/", pageNum, "/", nrow(result)))
             }
@@ -198,8 +194,8 @@ willeyFullTextwater <- function(keyWord_1, keyWord_2) {
         
     }, error = function(e) {
         print(e)
-        str <- paste(c("insert into errshengliwater values(\"", keyWord_1, 
-            "\",\"", keyWord_2, "\",", ii, ")"), collapse = "")
+        str <- paste(c("insert into errshengliwater values(\"", keyWord_1, "\",\"", 
+            keyWord_2, "\",", ii, ")"), collapse = "")
         tmpstr <- dbGetQuery(sqlite, str)
         
     })

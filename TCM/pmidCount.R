@@ -74,9 +74,9 @@ for (ii in 52:nrow(result_1)) {
         print(jj)
         tryCatch({
             
-            prestr = paste(c("(", molName, " [MeSH Terms] OR ", molName, 
-                "[Title/Abstract])", "(", meshName, " [MeSH Terms] OR ", 
-                meshName, "[Title/Abstract])"), collapse = "")
+            prestr = paste(c("(", molName, " [MeSH Terms] OR ", molName, "[Title/Abstract])", 
+                "(", meshName, " [MeSH Terms] OR ", meshName, "[Title/Abstract])"), 
+                collapse = "")
             pmid <- downloadPmid(prestr)
             if (is.data.frame(pmid)) {
                 kk <- kk + 1

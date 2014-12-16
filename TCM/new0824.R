@@ -1,5 +1,4 @@
-# 采用 [majr:Noexp]
-# mesh<-read.csv('mesh.csv',stringsAsFactors=F,header=F)
+# 采用 [majr:Noexp] mesh<-read.csv('mesh.csv',stringsAsFactors=F,header=F)
 # mol<-read.csv('molWithPid.csv',stringsAsFactors=F)
 molSym <- read.csv("molSymptom.csv", stringsAsFactors = F)
 View(molSym)

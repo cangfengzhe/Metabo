@@ -1,4 +1,4 @@
-#å¤„ç†æ–‡çŒ®ä¸­å¾—åˆ°çš„miRnaçš„æ•°æ® 
+#´¦ÀíÎÄÏ×ÖĞµÃµ½µÄmiRnaµÄÊı¾İ dd
 
 library(stringr)
 
@@ -13,11 +13,11 @@ dbGetQuery(con, 'drop table miRNA')
 
 process <- function(ii, colnum){
   
-  #é€åˆ—è¿›è¡Œ,æ‹†åˆ†ä¸€åˆ—ï¼Œä¸å…¶ä»–åˆ—ç»„åˆ
+  #ÖğÁĞ½øĞĞ,²ğ·ÖÒ»ÁĞ£¬ÓëÆäËûÁĞ×éºÏ µÃµ½µÄ 
   
-  # dataä¸ºåŸå§‹æ•°æ®
+  # dataÎªÔ­Ê¼Êı¾İ
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii ä¸ºè¡Œå·
+  # ii ÎªĞĞºÅ
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= out, cellLines= data[ii,3],
@@ -30,18 +30,18 @@ process <- function(ii, colnum){
   print(ii)
 }
 
-# å¯¹æ¯ä¸€åˆ—è¿›è¡Œå¤„ç†
+# ¶ÔÃ¿Ò»ÁĞ½øĞĞ´¦Àí
 
-# æ¯ä¸€åˆ—å¤„ç†å‰ï¼Œéœ€è¦å¯¹å‡½æ•° process è¿›è¡Œä¿®æ”¹
+# Ã¿Ò»ÁĞ´¦ÀíÇ°£¬ĞèÒª¶Ôº¯Êı process ½øĞĞĞŞ¸Ä
 
-# ç¬¬äºŒåˆ—
+# µÚ¶şÁĞ
 process <- function(ii, colnum){
   
-  #é€åˆ—è¿›è¡Œ,æ‹†åˆ†ä¸€åˆ—ï¼Œä¸å…¶ä»–åˆ—ç»„åˆ
+  #ÖğÁĞ½øĞĞ,²ğ·ÖÒ»ÁĞ£¬ÓëÆäËûÁĞ×éºÏ
   
-  # dataä¸ºåŸå§‹æ•°æ®
+  # dataÎªÔ­Ê¼Êı¾İ
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii ä¸ºè¡Œå·
+  # ii ÎªĞĞºÅ
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= out, cellLines= data[ii,3],
@@ -57,14 +57,14 @@ process <- function(ii, colnum){
 rowNum = 1:nrow(data)
 sapply(rowNum, process, colnum=2)
 
-# ç¬¬ä¸‰åˆ—
+# µÚÈıÁĞ
 process <- function(ii, colnum){
   
-  #é€åˆ—è¿›è¡Œ,æ‹†åˆ†ä¸€åˆ—ï¼Œä¸å…¶ä»–åˆ—ç»„åˆ
+  #ÖğÁĞ½øĞĞ,²ğ·ÖÒ»ÁĞ£¬ÓëÆäËûÁĞ×éºÏ
   
-  # dataä¸ºåŸå§‹æ•°æ®
+  # dataÎªÔ­Ê¼Êı¾İ
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii ä¸ºè¡Œå·
+  # ii ÎªĞĞºÅ
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines= out,
@@ -83,15 +83,15 @@ rowNum = 1:nrow(data)
 sapply(rowNum, process, colnum=3)
 View(data)
 
-# ç¬¬4åˆ—
+# µÚ4ÁĞ
 
 process <- function(ii, colnum){
   
-  #é€åˆ—è¿›è¡Œ,æ‹†åˆ†ä¸€åˆ—ï¼Œä¸å…¶ä»–åˆ—ç»„åˆ
+  #ÖğÁĞ½øĞĞ,²ğ·ÖÒ»ÁĞ£¬ÓëÆäËûÁĞ×éºÏ
   
-  # dataä¸ºåŸå§‹æ•°æ®
+  # dataÎªÔ­Ê¼Êı¾İ
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii ä¸ºè¡Œå·
+  # ii ÎªĞĞºÅ
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines=data[ii,3],
@@ -111,15 +111,15 @@ sapply(rowNum, process, colnum=4)
 data <- dbReadTable(con,'miRNA')
 View(data)
 
-# ç¬¬5åˆ—
+# µÚ5ÁĞ
 
 process <- function(ii, colnum){
   
-  #é€åˆ—è¿›è¡Œ,æ‹†åˆ†ä¸€åˆ—ï¼Œä¸å…¶ä»–åˆ—ç»„åˆ
+  #ÖğÁĞ½øĞĞ,²ğ·ÖÒ»ÁĞ£¬ÓëÆäËûÁĞ×éºÏ
   
-  # dataä¸ºåŸå§‹æ•°æ®
+  # dataÎªÔ­Ê¼Êı¾İ
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii ä¸ºè¡Œå·
+  # ii ÎªĞĞºÅ
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines=data[ii,3],
@@ -140,7 +140,7 @@ sapply(rowNum, process, colnum=5)
 data <- dbReadTable(con,'miRNA')
 View(data)
 #
-# ç¬¬5åˆ—
+# µÚ5ÁĞ
 data <- dbReadTable(con,'miRNA')
 dbGetQuery(con, 'delete from miRNA')
 rowNum = 1:nrow(data)
@@ -151,4 +151,4 @@ View(data)
 
 miRNALitData <- data
 save(miRNALitData, file = 'miRNA.rdata')
-write.csv(miRNALitData, file = 'miRNALit.csv')
+write.csv(miRNALitData, file = 'miRNALit.csv', fileEncoding = "utf8")

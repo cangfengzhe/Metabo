@@ -1,11 +1,10 @@
 library(XML)
 pmidCount <- function(str) {
-    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,'
-    # [MeSH Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
-    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,''
-    # [MeSH Terms] OR '',str,'' [Title/Abstract]'),collapse='')
-    # prestr=paste(c(str,' [MeSH Terms] OR ',str,'
-    # [Title/Abstract]'),collapse='')
+    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,' [MeSH
+    # Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
+    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,'' [MeSH
+    # Terms] OR '',str,'' [Title/Abstract]'),collapse='') prestr=paste(c(str,'
+    # [MeSH Terms] OR ',str,' [Title/Abstract]'),collapse='')
     prestr <- str
     
     preurl <- paste(c("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=", 

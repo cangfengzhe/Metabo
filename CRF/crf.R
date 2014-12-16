@@ -5,8 +5,8 @@ library(koRpus)
 # set.kRp.env(TT.cmd='C:\\TreeTagger\\bin\\tree-tagger.exe')#useless
 # parse the file test.txt,important step
 Text <- read.delim("Text.txt", na.string = " ")
-tagged.results <- treetag("train.txt", treetagger = "manual", lang = "en", 
-    TT.options = list(path = "C:\\TreeTagger", preset = "en"))
+tagged.results <- treetag("train.txt", treetagger = "manual", lang = "en", TT.options = list(path = "C:\\TreeTagger", 
+    preset = "en"))
 # 'test.txt' indicate the path of file that you need
 
 test <- tagged.results@TT.res
@@ -30,8 +30,7 @@ train01lin <- read.delim("train01lin.txt", header = F)
 # 合并
 trainData <- cbind.data.frame(train01lin[, c(1, 3)], trainRaw001[, 2])
 # 导出最终的trainset
-write.table(x = trainData, file = "trainData.txt", quote = F, col.names = F, 
-    row.names = F)
+write.table(x = trainData, file = "trainData.txt", quote = F, col.names = F, row.names = F)
 
 
 

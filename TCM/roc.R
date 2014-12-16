@@ -29,20 +29,19 @@ ggplot(df, aes(yuzhi, outlier)) + geom_line() + geom_line(aes(yuzhi, wenxianCoun
 
 
 plot(data[, 3], type = "l")
-hist(data[, 3]) 
+hist(data[, 3])
 
 
 
-#采用pRCO package 计算ROC曲线
+# 采用pRCO package 计算ROC曲线
 
-rocData <- read.csv('result//final//network//roc.csv', stringsAsFactors=F, header = F)
+rocData <- read.csv("result//final//network//roc.csv", stringsAsFactors = F, header = F)
 
-roc(response = rocData[,3], predictor = rocData[,2], plot=T)
+roc(response = rocData[, 3], predictor = rocData[, 2], plot = T)
 
 
 
 data(aSAH)
 View(aSAH)
 # Basic example
-roc(aSAH$outcome, aSAH$s100b,
-    levels=c("Good", "Poor"), plot=T)
+roc(aSAH$outcome, aSAH$s100b, levels = c("Good", "Poor"), plot = T) 

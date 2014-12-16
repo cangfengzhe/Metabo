@@ -1,11 +1,10 @@
 library(XML)
 pmidCount <- function(str) {
-    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,'
-    # [MeSH Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
-    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,''
-    # [MeSH Terms] OR '',str,'' [Title/Abstract]'),collapse='')
-    # prestr=paste(c(str,' [MeSH Terms] OR ',str,'
-    # [Title/Abstract]'),collapse='')
+    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,' [MeSH
+    # Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
+    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,'' [MeSH
+    # Terms] OR '',str,'' [Title/Abstract]'),collapse='') prestr=paste(c(str,'
+    # [MeSH Terms] OR ',str,' [Title/Abstract]'),collapse='')
     
     prestr <- str
     
@@ -32,12 +31,11 @@ dbGetQuery(sqlite, "create table comorbidigy (keyword01 varchar(200),keyword02 v
 dbDisconnect(sqlite)
 
 pmidCount.2 <- function(str01, str02) {
-    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,'
-    # [MeSH Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
-    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,''
-    # [MeSH Terms] OR '',str,'' [Title/Abstract]'),collapse='')
-    # prestr=paste(c(str,' [MeSH Terms] OR ',str,'
-    # [Title/Abstract]'),collapse='')
+    # by Pidong Li 2014-08-06 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c('(',str1,' [MeSH
+    # Terms] OR ',str1,'[Title/Abstract])','(',str2,' [MeSH Terms] OR
+    # ',str2,'[Title/Abstract])'),collapse='') prestr=paste(c(''',str,'' [MeSH
+    # Terms] OR '',str,'' [Title/Abstract]'),collapse='') prestr=paste(c(str,'
+    # [MeSH Terms] OR ',str,' [Title/Abstract]'),collapse='')
     tryCatch({
         prestr <- paste(c("\"", str01, "\" [Majr:NoExp] AND \"", str02, "\" [Majr:NoExp]"))
         
@@ -50,14 +48,14 @@ pmidCount.2 <- function(str01, str02) {
         retMax <- as.numeric(pmidCount[1, 1])
         # print(str)
         print(paste(str01, str02))
-        strRes <- paste("insert into comorbidity values(\"", str01, "\",\"", 
-            str02, "\",\"", retMax, "\")")
+        strRes <- paste("insert into comorbidity values(\"", str01, "\",\"", str02, 
+            "\",\"", retMax, "\")")
         dbGetQuery(sqlite, strRes)
         
     }, error = function(e) {
         print(e)
-        errStr <- paste(c("insert into error values(\"", str01, "\",\"", 
-            str02, "\")"))
+        errStr <- paste(c("insert into error values(\"", str01, "\",\"", str02, 
+            "\")"))
         dbGetQuery(sqlite, errStr)
         
     })

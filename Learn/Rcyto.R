@@ -26,7 +26,6 @@ setDefaultNodeColor(cw, "#AAFF88")
 
 displayGraph(cw)
 # 根据lfc取值，对node进行颜色处理
-setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", "#FF0000"), 
-    mode = "interpolate")
+setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", "#FF0000"), mode = "interpolate")
 # 重画
 redraw(cw) 

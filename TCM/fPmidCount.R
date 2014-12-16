@@ -1,10 +1,8 @@
 downloadPmidCount <- function(str) {
-    # 检查中药分子的个数 ?Ȼ?ȡ???????׵???Ŀ
-    # prestr=paste(c(''',str,'' [MeSH Terms] OR '',str,''
-    # [Title/Abstract]'),collapse='')
+    # 检查中药分子的个数 ?Ȼ?ȡ???????׵???Ŀ prestr=paste(c(''',str,''
+    # [MeSH Terms] OR '',str,'' [Title/Abstract]'),collapse='')
     
-    prestr = paste(c(str, " [MeSH Terms] OR ", str, "[Title/Abstract]"), 
-        collapse = "")
+    prestr = paste(c(str, " [MeSH Terms] OR ", str, "[Title/Abstract]"), collapse = "")
     # prestr<-str
     preurl <- paste(c("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=", 
         prestr), collapse = "")

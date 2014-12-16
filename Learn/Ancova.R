@@ -9,9 +9,9 @@ a <- anova(fit)  #Ö»¿´½»»¥Ïî f:x,p>0.05ËµÃ÷fxÃ»ÓÐ½»»¥×÷ÓÃ£¬²îÒì²»ÏÔÖø£¬¼´Æ½ÐÐ£¬Æ
 # ½øÐÐÀë»Ø¹é·ÖÎö
 lxx <- sum((x[f == 1] - mean(x[f == 1]))^2)  #  x1Àë²îÆ½·½ºÍ
 +sum((x[f == 2] - mean(x[f == 2]))^2) + sum((x[f == 3] - mean(x[f == 3]))^2)
-lxy <- sum((x[f == 1] - mean(x[f == 1])) * (y[f == 1] - mean(y[f == 1]))) + 
-    sum((x[f == 2] - mean(x[f == 2])) * (y[f == 2] - mean(y[f == 2]))) + 
-    sum((x[f == 3] - mean(x[f == 3])) * (y[f == 3] - mean(y[f == 3])))
+lxy <- sum((x[f == 1] - mean(x[f == 1])) * (y[f == 1] - mean(y[f == 1]))) + sum((x[f == 
+    2] - mean(x[f == 2])) * (y[f == 2] - mean(y[f == 2]))) + sum((x[f == 3] - 
+    mean(x[f == 3])) * (y[f == 3] - mean(y[f == 3])))
 b = lxy/lxx  #¹²Ð±ÂÊ
 f1 <- y[f == 1] - b * (x[f == 1] - mean(x))
 y[f == 1] - b * (x[f == 1] - mean(x))

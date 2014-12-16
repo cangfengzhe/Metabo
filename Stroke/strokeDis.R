@@ -16,9 +16,9 @@ for (ii in 1:nrow(disease)) {
     
     tryCatch({
         
-        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", molName, 
-            "\" [Title/Abstract]) AND ", "(\"", meshName, "\" [MeSH Terms] OR \"", 
-            meshName, "\"[Title/Abstract])"), collapse = "")
+        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", molName, "\" [Title/Abstract]) AND ", 
+            "(\"", meshName, "\" [MeSH Terms] OR \"", meshName, "\"[Title/Abstract])"), 
+            collapse = "")
         pmid <- downloadPmid(prestr)
         if (is.matrix(pmid)) {
             kk <- kk + 1
