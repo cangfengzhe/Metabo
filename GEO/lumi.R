@@ -1,39 +1,43 @@
 # lumi package is used to process the Illumina Infinium 27k and 450k methylation microarray data
-fileName <- 'D:/deskTop/GSE28647_signal_intensities.txt/GSE28647_signal_intensities.txt'
 
-example.lumiMethy <- lumiMethyR(fileName,seq='\t', lib="IlluminaHumanMethylation27k.db")
-??.getFileSeparator
+# 采用lumi自带的数据
+library(lumi)
+#导入GEO数据 
+# exprs data
 
-library(limma)
-browseVignettes("limma")
+#GSE28647_signal_intensities.txt
+fileName <- 'D:/work/GSE28647/GSE28647_signal_intensities.txt'
+rawData <- read.delim(fileName, stringsAsFactors=F)
+names(rawData)
 
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("limma")
+rawDataTbl <- tbl_df(rawData)
+rawDataMeth <- select(rawDataTbl,ends_with('.methylated.signal')) #需加'.'与unmethylated.signal区别
+rawDataUnmeth <- select(rawDataTbl,ends_with('unmethylated.signal'))
+betaValue <- rawDataMeth/( rawDataMeth + rawDataUnmeth+100)
+sampleName <- do.call('cbind',strsplit(colnames(betaValue),'[.]'))
+colnames(betaValue) <- sampleName[1,]
+row.names(betaValue) <- rawData[,1]
+# detective pvalue
+pvalue <- select(rawDataTbl,ends_with('Pval'))
+colnames(pvalue) <- sampleName[1,]
 
+# 导入lumi
+# 新建LumiBatch 实例
+# 因为没有数据的标准差 se.expr,所以我们建立se.expr为NA的矩阵
+betaValue <- as.matrix(betaValue)
+pvalue <- as.matrix(pvalue)
+se <- matrix(0,nrow(betaValue), ncol(betaValue))
+lumiData <- new('LumiBatch', exprs=betaValue, se.exprs=se, detection<-pvalue)
 
-setClass("Person",slots=list(name="character",age="numeric"))
+plot(lumiData, what='density')
+plotCDF(lumi.N.Q)
 
-# 创建Person的子类
-setClass("Son",slots=list(father="Person",mother="Person"),contains="Person")
+lumi.B <-lumiB(lumiData)
 
-# 实例化Person对象
-father<-new("Person",name="F",age=44)
-mother<-new("Person",name="M",age=39)
-# 可以继承实例化
-son<-new("Son",name="S",age=16,father=father,mother=mother)
-son@name
+lumi.N.Q <- lumiExpresso(lumiData, QC.evaluation=TRUE, variance.stabilize=F)
 
-slot(son, 'name')
-isS4(son)
-# 实例化一个Son对象
-setValidity('Persion',funtion(object){
-  if(object@age<0) stop
-})
-
-
-setGeneric("work",function(object) standardGeneric("work"))
-setMethod("work", signature(object = "Person"), function(object) cat(object@name , "is working") )
-work(son)
-class(x)
-
-
+plotCDF(lumi.N.Q)
+plot(lumi.N.Q, what='density')
+limiQ(lumi.N.Q)
+summary(lumi.N.Q,'QC')
+plot(lumi.N.Q, what='density')
