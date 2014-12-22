@@ -34,6 +34,7 @@ plotCDF(lumi.N.Q)
 
 lumi.B <-lumiB(lumiData)
 
+# 一步到位 进行质量控制评估，背景处理，标准化
 lumi.N.Q <- lumiExpresso(lumiData, QC.evaluation=TRUE, variance.stabilize=F)
 
 plotCDF(lumi.N.Q)
@@ -41,3 +42,31 @@ plot(lumi.N.Q, what='density')
 limiQ(lumi.N.Q)
 summary(lumi.N.Q,'QC')
 plot(lumi.N.Q, what='density')
+
+system.file(package='lumi')
+
+data(example.lumiMethy)
+# 转换 M value
+lumi.N.Q <- lumiExpresso(example.lumi, QC.evaluation=TRUE)
+
+
+
+dataMatrix <- exprs(lumi.N.Q)
+
+presentCount <- detectionCall(example.lumi)
+selDataMatrix <- dataMatrix[presentCount > 0,]
+if (require(lumiHumanAll.db) & require(annotate)) {
+  selDataMatrix <- selDataMatrix[!is.na(getSYMBOL(rownames(selDataMatrix), 'lumiHumanAll.db')),]
+}
+probeList <- rownames(selDataMatrix)
+
+sampleType <- c('100:0', '95:5', '100:0', '95:5')
+design <- model.matrix(~ factor(sampleType))
+colnames(design) <- c('100:0', '95:5-100:0')
+fit <- lmFit(selDataMatrix, design)
+fit <- eBayes(fit)
+
+View(topTable(fit, coef='95:5-100:0', adjust='fdr', number=10))
+
+## get significant gene list with FDR adjusted p.values less than 0.01
+

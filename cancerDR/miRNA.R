@@ -1,4 +1,3 @@
-#处理文献中得到的miRna的数据 dd
 
 library(stringr)
 
@@ -13,11 +12,9 @@ dbGetQuery(con, 'drop table miRNA')
 
 process <- function(ii, colnum){
   
-  #逐列进行,拆分一列，与其他列组合 得到的 
-  
-  # data为原始数据
+
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii 为行号
+  # ii 为?泻?
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= out, cellLines= data[ii,3],
@@ -30,18 +27,18 @@ process <- function(ii, colnum){
   print(ii)
 }
 
-# 对每一列进行处理
+# ??每一?薪??写???
 
-# 每一列处理前，需要对函数 process 进行修改
+# 每一?写???前????要?院??? process ?????薷?
 
-# 第二列
+# ?诙???
 process <- function(ii, colnum){
   
-  #逐列进行,拆分一列，与其他列组合
+  #???薪???,????一?校?????????????
   
-  # data为原始数据
+  # data为原始????
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii 为行号
+  # ii 为?泻?
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= out, cellLines= data[ii,3],
@@ -57,14 +54,14 @@ process <- function(ii, colnum){
 rowNum = 1:nrow(data)
 sapply(rowNum, process, colnum=2)
 
-# 第三列
+# ??????
 process <- function(ii, colnum){
   
-  #逐列进行,拆分一列，与其他列组合
+  #???薪???,????一?校?????????????
   
-  # data为原始数据
+  # data为原始????
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii 为行号
+  # ii 为?泻?
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines= out,
@@ -83,15 +80,15 @@ rowNum = 1:nrow(data)
 sapply(rowNum, process, colnum=3)
 View(data)
 
-# 第4列
+# ??4??
 
 process <- function(ii, colnum){
   
-  #逐列进行,拆分一列，与其他列组合
+  #???薪???,????一?校?????????????
   
-  # data为原始数据
+  # data为原始????
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii 为行号
+  # ii 为?泻?
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines=data[ii,3],
@@ -111,15 +108,15 @@ sapply(rowNum, process, colnum=4)
 data <- dbReadTable(con,'miRNA')
 View(data)
 
-# 第5列
+# ??5??
 
 process <- function(ii, colnum){
   
-  #逐列进行,拆分一列，与其他列组合
+  #???薪???,????一?校?????????????
   
-  # data为原始数据
+  # data为原始????
   out <- strsplit(data[ii,colnum],'\\|')[[1]]
-  # ii 为行号
+  # ii 为?泻?
   out <- str_trim(out)
   if(length(out)>0){
     df<- data.frame(id=data[ii,1], disease= data[ii,2], cellLines=data[ii,3],
@@ -140,7 +137,7 @@ sapply(rowNum, process, colnum=5)
 data <- dbReadTable(con,'miRNA')
 View(data)
 #
-# 第5列
+# ??5??
 data <- dbReadTable(con,'miRNA')
 dbGetQuery(con, 'delete from miRNA')
 rowNum = 1:nrow(data)
