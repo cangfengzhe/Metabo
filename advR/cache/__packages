@@ -1,0 +1,7 @@
+base
+dplyr
+knitr
+pryr
+lattice
+memoise
+ggplot2

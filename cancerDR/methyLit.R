@@ -1,40 +1,31 @@
-# 整理文献中得到的甲基化数捐�<U+3E65> time Tue Nov 25 14:34:19
+# process the methylation data related to the drug resistance 
+# from literature
 # 2014
+library(splitstackshape)
 library(stringr)
-library(RSQLite)
-data <- read.csv("methyLit.csv", stringsAsFactors = F)
-# View(data)
-con <- dbConnect(dbDriver("SQLite"), "methylit.db")
+# import data ----
+rawMeth <- read.csv('data/methylation.csv', stringsAsFactors = F)
+# View(meth)
 
+# process the data ----
+# 单元格分割
+splitMeth <-rawMeth %>% 
+  cSplit('cellLines', "|", 'long') %>%
+  cSplit('disease', "|", 'long') %>%
+  cSplit('drug', "|", 'long') %>%
+  cSplit('gene', "|", 'long')
 
-process <- function(ii, colnum) {
-    
-    # 逐列进行,拆分一列，与其他列组合
-    
-    
-    out <- strsplit(data[ii, colnum], "\\|")[[1]]
-    out <- str_trim(out)
-    if (out[1] != "") {
-        df <- data.frame(id = data[ii, 1], disease = out, cellLines = data[ii, 
-            3], drug = data[ii, 4], gene = data[ii, 5], row.names = NULL, stringsAsFactors = F)
-        dbWriteTable(con, "methy", df, append = T)
-    }
-    
-    print(ii)
-}
+# from data.table to data.frame
+splitMeth <- as.data.frame(splitMeth) 
 
+# trim the string
+procMeth <- sapply(1:ncol(splitMeth), function(x){
+  splitMeth[,x] <- as.character(splitMeth[,x])
+  str_trim(splitMeth[,x])
+})
+View(procMeth)
 
-# 测试代码
-ii = 3
-colnum = 2
-# end
+# export data to local file----
+write.csv(procMeth, file='data/procMeth.csv')
 
-# 第二�<U+393C><U+3E37>
-rowNum = 1:nrow(data)
-sapply(rowNum, process, colnum = 2)
-
-# 第三�<U+393C><U+3E37>
-data <- dbReadTable(con, "methy")
-dbGetQuery(con, "delete from methy")
-rowNum = 1:nrow(data)
-sapply(rowNum, process, colnum = 3) 
+# link to other database in excel

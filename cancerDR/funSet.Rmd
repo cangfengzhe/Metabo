@@ -1,0 +1,94 @@
+---
+title: "R语言函数集合"
+author: "By Pidong Li  2014-12-22 "
+output: 
+  rmarkdown::html_vignette: 
+    css: D:/Program Files/RStudio/RFile/MarkDown/markdown.css
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+#### any
+
+```{r, tidy=TRUE}
+range(x <- sort(round(stats::rnorm(10) - 1.2, 1)))
+if(any(x < 0)) cat("x contains negative values\n")
+```
+
+只要向量中有一个是正确的就返回True
+
+
+#### apply family
+
+`apply(X, MARGIN, FUN, ...)` 
+X为array或matrix， MARGIN为数据下标，1表示行，2表示列，c(1,2) 表示行和列, 如果有行名和列名也可以使用
+
+```{r, tidy=TRUE}
+ 
+```
+
+`lapply(X, FUN, ...)` 
+返回list，可以用 `do.call('cbind',output)` 合并为data.frame
+
+`sapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)` 
+simplify=T 输出matrix，F输出list(相当于lapply)
+
+`vapply(X, FUN, FUN.VALUE, ..., USE.NAMES = TRUE)` 
+FUN.VALUE定义输出的结果
+`mapply(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE, USE.NAMES = TRUE)`
+函数为第一个参数，其他函数（都可以是变量）随后输入，返回list
+
+example 
+```{r}
+word <- function(C, k) paste(rep.int(C, k), collapse = "")
+utils::str(mapply(word, LETTERS[1:6], 6:1, SIMPLIFY = FALSE))
+```
+
+`X` 为列表或向量，如果为矩阵会强制转换为list，表示调用函数的第一个参数；
+`FUN` 函数
+`...` 表示函数的其他参数，可以依次添加
+`USE.NAMES` 上面的参数`...`如果使用了字符串，那么这个字符串将作为输出结果过的行名。
+
+#### identical
+
+`identical(x, y, num.eq = TRUE, single.NA = TRUE, attrib.as.set = TRUE,          ignore.bytecode = TRUE, ignore.environment = FALSE)`
+判断x，y是否相同（数值，类型）
+
+#### reduce 
+
+`Reduce(f, x, init, right = FALSE, accumulate = FALSE)`
+迭代函数,f为函数，x为vector, 先对vector前两项进行处理，随后的结果和第三项进行运算，依次迭代
+
+```{r}
+Reduce('+', 1:10)
+```
+
+#### Filter
+
+`Filter(f, x)` 
+采用f函数对x进行处理，返回结果正确的数值
+
+```{r,cache=TRUE}
+Filter(function(x){x%%2==0}, 1:10)
+```
+
+
+```{r}
+ ctrl+alt+I insert chunk
+```
+
+#### melt
+```{r,  error=FALSE}
+melt(data, id.vars, measure.vars,
+  variable.name = "variable", ..., na.rm = FALSE, value.name = "value",
+  factorsAsStrings = TRUE)
+```
+id.vars 表示固定不变的列
+measure.vars 控制变量,只显示的行
+variable.name 重塑后控制变量的列名
+value.name 重塑后数值变量的列名
+>如果data为matrix格式，则不执行上述标准，变成行列的对应值
+
+
