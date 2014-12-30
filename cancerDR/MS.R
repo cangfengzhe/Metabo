@@ -2,7 +2,7 @@ library(stringr)
 library(data.table)
 library(devtools)
 library(splitstackshape)
-library(sqldf)
+
 # 导入数据----
 rawMs <- read.csv('data/MS.csv', stringsAsFactors = F) 
 

@@ -1,0 +1,208 @@
+---
+title: "The Vocabulary in Advanced R by Hadley Wickham"
+author: "By Pidong Li `r Sys.Date()` "
+layout: post
+description: "The Vocabulary in Advanced R by Hadley Wickham R语言 函数描述"
+category: [R]
+avatarimg: "http://cangfengzhe.github.io/img/"
+tags : [Advanced R]
+output: 
+  rmarkdown::html_vignette: 
+    css: D:/Program Files/RStudio/RFile/MarkDown/markdown.css
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+Hadley Wickham 前辈写的Advanced R中提到了部分常见的Vocabulary，现在对这些常见的函数进行了解，只做简单的解释，如需深入请`help()`。
+
+### Basic
+
+`?` 
+提供帮助相当于`help()`
+
+`str`
+简单的展示对象的结构,可用于任何R对象、函数.拿到一个R对象都可以用`str'进行探索性分析，有点类似与summary。
+
+example
+
+```{r}
+str(1:12)
+str( lsfit(1:9, 1:9))
+str( lsfit(1:9, 1:9), max.level = 1)
+str( lsfit(1:9, 1:9), width = 60, strict.width = "cut")
+str( lsfit(1:9, 1:9), width = 60, strict.width = "wrap")
+op <- options(); str(op) 
+## S4 classes :
+require(stats4)
+x <- 0:10; y <- c(26, 17, 13, 12, 20, 5, 9, 8, 5, 4, 8)
+ll <- function(ymax = 15, xh = 6)
+      -sum(dpois(y, lambda=ymax/(1+x/xh), log=TRUE))
+fit <- mle(ll)
+str(fit)
+```
+
+`%in%`
+
+二元运算符，功能上与match相近。返回一个逻辑值判断右边的对象是否包含左边的对象。
+example
+```{r}
+1:10 %in% c(1,3,5,9)
+sstr <- c("c","ab","B","bba","c",NA,"@","bla","a","Ba","%")
+sstr[sstr %in% c(letters, LETTERS)]
+
+"%w/o%" <- function(x, y) x[!x %in% y] #--  x without y
+(1:10) %w/o% c(3,7,12)
+```
+
+`match`
+
+匹配函数，第一个参数与第二个参数进行匹配（二者共有），返回能够匹配上的对象在第二个参数中的位置。
+example
+```{r}
+match(c('a', 'z', 'b'), letters, nomatch = 0)
+```
+
+`=` & `<-` & `<<-`
+
+赋值运算符，`<-`可以被用于任何地方，而`=`只能用于命令行中的完整表达（不明白）或者参数赋值过程中。`<<-`一般用于函数内部，将局部变量变为函数变量。
+example
+```{r, tidy=True}
+a <- b <- c <- 6
+aa <- 0
+bb <- 5
+tmp <- function(){
+  aa <- 1;
+  bb <<- 2;
+}
+
+tmp()
+print(aa)
+print(bb)
+```
+----
+`$`& `[`&`[[`
+以上3个操作符用于提取和取代对象中的元素
+
+example
+```{r}
+x <- 1:12
+m <- matrix(1:6, nrow = 2, dimnames = list(c("a", "b"), LETTERS[1:3]))
+li <- list(pi = pi, e = exp(1))
+x[10]                 # the tenth element of x
+x <- x[-1]            # delete the 1st element of x
+m[1,]                 # the first row of matrix m
+m[1, , drop = FALSE]  # is a 1-row matrix
+m[,c(TRUE,FALSE,TRUE)]# logical indexing
+m[cbind(c(1,2,1),3:1)]# matrix numeric index
+ci <- cbind(c("a", "b", "a"), c("A", "C", "B"))
+m[ci]                 # matrix character index
+m <- m[,-1]           # delete the first column of m
+li[[1]]               # the first element of list li
+y <- list(1, 2, a = 4, 5)
+y[c(3, 4)]            # a list containing elements 3 and 4 of y
+y$a                   # the element of y named a
+
+## non-integer indices are truncated:
+(i <- 3.999999999) # "4" is printed
+(1:5)[i]  # 3
+
+## named atomic vectors, compare "[" and "[[" :
+nx <- c(Abc = 123, pi = pi)
+nx[1] ; nx["pi"] # keeps names, whereas "[[" does not:
+nx[[1]] ; nx[["pi"]]
+
+## recursive indexing into lists
+z <- list(a = list(b = 9, c = "hello"), d = 1:5)
+unlist(z)
+z[[c(1, 2)]]
+z[[c(1, 2, 1)]]  # both "hello"
+z[[c("a", "b")]] <- "new"
+unlist(z)
+```
+
+---
+`head` & `tail`
+获得数据头部或尾部的部分数据，默认显示6行，可设定参数n调整。n可以为负值表示逆向去除。
+
+example
+```{r}
+head(letters)
+head(letters, n = -6L)
+tail(letters, n = -3)
+```
+
+----
+`subset`
+筛选数据集
+`subset(x, subset, select, drop = FALSE, ...)` 
+参数介绍
+x 被处理的数据集
+subset  筛选的标准,可根据数据的内容和行名进行选择
+select  返回的数据列
+> dplyr 包提供了filter函数,比之更为强大.
+
+example
+```{r}
+# 根据数据的内容进行筛选
+subset(airquality, Temp > 80, select = c(Ozone, Temp)) %>% head()
+subset(airquality, Day == 1, select = -Temp) %>% head()
+subset(airquality, select = Ozone:Wind) %>% head()
+
+#subset 也可以是逻辑值(T or F),对需要的行进行筛选
+nm <- rownames(state.x77)
+subset(state.x77, grepl("^M", nm), Illiteracy:Murder)
+```
+
+----
+`with` & `transform`
+对现有数据中的的列进行处理
+> dplyr包中有更为强大的mutate函数
+
+example
+```{r}
+aq <- within(airquality, {     # Notice that multiple vars can be changed
+    lOzone <- log(Ozone)
+    Month <- factor(month.abb[Month])
+    cTemp <- round((Temp - 32) * 5/9, 1) # From Fahrenheit to Celsius
+    rm(Day, Temp)
+})
+head(aq)
+head(airquality)
+head(transform(airquality, Ozone = -Ozone))
+######
+with(subset(ToothGrowth, supp == "VC"),
+     boxplot(len ~ dose, boxwex = 0.25, at = 1:3 - 0.2,
+             col = "yellow", main = "Guinea Pigs' Tooth Growth",
+             xlab = "Vitamin C dose mg",
+             ylab = "tooth length", ylim = c(0, 35)))
+```
+----
+
+`assign`
+为数值分配一个名字,解决为字符串赋值的问题
+
+example 
+```{r}
+for(i in 1:6) { #-- Create objects  'r.1', 'r.2', ... 'r.6' --
+    nam <- paste("r", i, sep = ".")
+    assign(nam, 1:i) # r.1 到 r.6都被赋值
+}
+ls(pattern = "^r..$")
+
+a <- 1:4
+assign("a[1]", 2)  #为a[1]赋值为2,但是实际a[1]为1,需要通过get获得
+a[1] == 2          # FALSE
+get("a[1]") == 2   # TRUE
+```
+----
+
+`get`
+
+
+```r
+library(knitr)
+knit('2014-12-30-advR_vocabulary.Rmd', output = 'F:/blog/_posts/2014-12-30-advR_vocabulary.md')
+```
+
