@@ -1,3 +1,5 @@
+
+# this function can be replaced by regmatches
 # get the article's title ,abstract,journal and pubdate get the string of
 # regular expression
 
@@ -11,11 +13,4 @@ gregexpResult <- function(pattern, text) {
 }
 
 
-regexpResult <- function(pattern, text) {
-    strPos <- regexpr(pattern, text, perl = T)  #get the start and the length of string 
-    
-    strStart <- as.numeric(strPos)  #convert to the numeric
-    
-    result <- substring(text, strStart, (strStart + attr(strPos, "match.length") - 
-        1))
-} 
+

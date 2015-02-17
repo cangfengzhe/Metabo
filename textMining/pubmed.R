@@ -38,10 +38,4 @@ for(ii in 1:(as.integer(length(proteinID)/k)+1)){
   )
   
 }
-xxProtein<-result0
-ffsave(xxProtein,file='xxProtein')  #全部的在result.rdata
-ffload(file='xxProtein')
-View(result[170000:170100,])
 
-attach(geneID)
-ii=14

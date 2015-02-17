@@ -1,5 +1,5 @@
 ---
-title: "R语言函数集合"
+title: "R璇█鍑芥暟闆嗗悎"
 author: "By Pidong Li  2014-12-22 "
 output: 
   rmarkdown::html_vignette: 
@@ -17,28 +17,28 @@ range(x <- sort(round(stats::rnorm(10) - 1.2, 1)))
 if(any(x < 0)) cat("x contains negative values\n")
 ```
 
-只要向量中有一个是正确的就返回True
+鍙鍚戦噺涓湁涓€涓槸姝ｇ‘鐨勫氨杩斿洖True
 
 
 #### apply family
 
 `apply(X, MARGIN, FUN, ...)` 
-X为array或matrix， MARGIN为数据下标，1表示行，2表示列，c(1,2) 表示行和列, 如果有行名和列名也可以使用
+X涓篴rray鎴杕atrix锛? MARGIN涓烘暟鎹笅鏍囷紝1琛ㄧず琛岋紝2琛ㄧず鍒楋紝c(1,2) 琛ㄧず琛屽拰鍒?, 濡傛灉鏈夎鍚嶅拰鍒楀悕涔熷彲浠ヤ娇鐢?
 
 ```{r, tidy=TRUE}
  example(apply)
 ```
 
 `lapply(X, FUN, ...)` 
-返回list，可以用 `do.call('cbind',output)` 合并为data.frame
+杩斿洖list锛屽彲浠ョ敤 `do.call('cbind',output)` 鍚堝苟涓篸ata.frame
 
 `sapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)` 
-simplify=T 输出matrix，F输出list(相当于lapply)
+simplify=T 杈撳嚭matrix锛孎杈撳嚭list(鐩稿綋浜巐apply)
 
 `vapply(X, FUN, FUN.VALUE, ..., USE.NAMES = TRUE)` 
-FUN.VALUE定义输出的结果
+FUN.VALUE瀹氫箟杈撳嚭鐨勭粨鏋?
 `mapply(FUN, ..., MoreArgs = NULL, SIMPLIFY = TRUE, USE.NAMES = TRUE)`
-函数为第一个参数，其他函数（都可以是变量）随后输入，返回list
+鍑芥暟涓虹涓€涓弬鏁帮紝鍏朵粬鍑芥暟锛堥兘鍙互鏄彉閲忥級闅忓悗杈撳叆锛岃繑鍥瀕ist
 
 example 
 ```{r}
@@ -46,20 +46,20 @@ word <- function(C, k) paste(rep.int(C, k), collapse = "")
 utils::str(mapply(word, LETTERS[1:6], 6:1, SIMPLIFY = FALSE))
 ```
 
-`X` 为列表或向量，如果为矩阵会强制转换为list，表示调用函数的第一个参数；
-`FUN` 函数
-`...` 表示函数的其他参数，可以依次添加
-`USE.NAMES` 上面的参数`...`如果使用了字符串，那么这个字符串将作为输出结果过的行名。
+`X` 涓哄垪琛ㄦ垨鍚戦噺锛屽鏋滀负鐭╅樀浼氬己鍒惰浆鎹负list锛岃〃绀鸿皟鐢ㄥ嚱鏁扮殑绗竴涓弬鏁帮紱
+`FUN` 鍑芥暟
+`...` 琛ㄧず鍑芥暟鐨勫叾浠栧弬鏁帮紝鍙互渚濇娣诲姞
+`USE.NAMES` 涓婇潰鐨勫弬鏁癭...`濡傛灉浣跨敤浜嗗瓧绗︿覆锛岄偅涔堣繖涓瓧绗︿覆灏嗕綔涓鸿緭鍑虹粨鏋滆繃鐨勮鍚嶃€?
 
 #### identical
 
 `identical(x, y, num.eq = TRUE, single.NA = TRUE, attrib.as.set = TRUE,          ignore.bytecode = TRUE, ignore.environment = FALSE)`
-判断x，y是否相同（数值，类型）
+鍒ゆ柇x锛寉鏄惁鐩稿悓锛堟暟鍊硷紝绫诲瀷锛?
 
 #### reduce 
 
 `Reduce(f, x, init, right = FALSE, accumulate = FALSE)`
-迭代函数,f为函数，x为vector, 先对vector前两项进行处理，随后的结果和第三项进行运算，依次迭代
+杩唬鍑芥暟,f涓哄嚱鏁帮紝x涓簐ector, 鍏堝vector鍓嶄袱椤硅繘琛屽鐞嗭紝闅忓悗鐨勭粨鏋滃拰绗笁椤硅繘琛岃繍绠楋紝渚濇杩唬
 
 ```{r}
 Reduce('+', 1:10)
@@ -68,7 +68,7 @@ Reduce('+', 1:10)
 #### Filter
 
 `Filter(f, x)` 
-采用f函数对x进行处理，返回结果正确的数值
+閲囩敤f鍑芥暟瀵箈杩涜澶勭悊锛岃繑鍥炵粨鏋滄纭殑鏁板€?
 
 ```{r,cache=TRUE}
 Filter(function(x){x%%2==0}, 1:10)
@@ -85,13 +85,13 @@ melt(data, id.vars, measure.vars,
   variable.name = "variable", ..., na.rm = FALSE, value.name = "value",
   factorsAsStrings = TRUE)
 ```
-id.vars 表示固定不变的列
-measure.vars 控制变量,只显示的行
-variable.name 重塑后控制变量的列名
-value.name 重塑后数值变量的列名
->如果data为matrix格式，则不执行上述标准，变成行列的对应值
+id.vars 琛ㄧず鍥哄畾涓嶅彉鐨勫垪
+measure.vars 鎺у埗鍙橀噺,鍙樉绀虹殑琛?
+variable.name 閲嶅鍚庢帶鍒跺彉閲忕殑鍒楀悕
+value.name 閲嶅鍚庢暟鍊煎彉閲忕殑鍒楀悕
+>濡傛灉data涓簃atrix鏍煎紡锛屽垯涓嶆墽琛屼笂杩版爣鍑嗭紝鍙樻垚琛屽垪鐨勫搴斿€?
 
 #### cast
 
 #### gc
-用于垃圾回收
+鐢ㄤ簬鍨冨溇鍥炴敹

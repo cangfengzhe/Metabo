@@ -1,7 +1,9 @@
 #data.frame
+library(XML)
+
 downloadPmid<-function(str){
 
-  #?Ȼ?ȡ???????׵???Ŀ
+
   #prestr=paste(c(str,' [MeSH Terms] OR ',str,'[Title/Abstract]'),collapse='')
   prestr<-str
   preurl<-paste(c('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=',prestr),collapse='')
@@ -17,18 +19,18 @@ downloadPmid<-function(str){
   if(retMax<=20 &  retMax!=0){
     nodeName<-getNodeSet(prexmlfile,"//id");# get the node and attribute
     Pmid<-sapply(nodeName,xmlValue) #get the attribute
-    Pmid<-as.data.frame(Pmid)
+    
     
     return(Pmid) 
   }
-  #??ȡ???? pmid
+  
   if(retMax>20) {
   url<-paste(c('http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=',prestr,'&RetMax=',retMax),collapse='')
   
-  xmlfile<-htmlParse(url,encoding="UTF-8",asTree = TRUE)#??ȡhtml?ļ?
+  xmlfile<-htmlParse(url,encoding="UTF-8",asTree = TRUE)#
   nodeName<-getNodeSet(xmlfile,"//id");# get the node and attribute
   Pmid<-sapply(nodeName, xmlValue) #get the attribute
-  Pmid<-as.data.frame(Pmid)
+ 
 
  return(Pmid) 
   }

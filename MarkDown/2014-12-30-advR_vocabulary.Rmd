@@ -17,12 +17,13 @@ vignette: >
 
 Hadley Wickham 前辈写的Advanced R中提到了部分常见的Vocabulary，现在对这些常见的函数进行了解，只做简单的解释，如需深入请`help()`。
 
-### Basic
+## Basic
 
-`?` 
+### `?` 
 提供帮助相当于`help()`
+----
 
-`str`
+### `str`
 简单的展示对象的结构,可用于任何R对象、函数.拿到一个R对象都可以用`str'进行探索性分析，有点类似与summary。
 
 example
@@ -42,8 +43,9 @@ ll <- function(ymax = 15, xh = 6)
 fit <- mle(ll)
 str(fit)
 ```
+----
 
-`%in%`
+### `%in%`
 
 二元运算符，功能上与match相近。返回一个逻辑值判断右边的对象是否包含左边的对象。
 example
@@ -55,20 +57,23 @@ sstr[sstr %in% c(letters, LETTERS)]
 "%w/o%" <- function(x, y) x[!x %in% y] #--  x without y
 (1:10) %w/o% c(3,7,12)
 ```
+----
 
-`match`
+### `match`
 
 匹配函数，第一个参数与第二个参数进行匹配（二者共有），返回能够匹配上的对象在第二个参数中的位置。
+
 example
 ```{r}
 match(c('a', 'z', 'b'), letters, nomatch = 0)
 ```
+----
 
-`=` & `<-` & `<<-`
+### `=` & `<-` & `<<-`
 
 赋值运算符，`<-`可以被用于任何地方，而`=`只能用于命令行中的完整表达（不明白）或者参数赋值过程中。`<<-`一般用于函数内部，将局部变量变为函数变量。
 example
-```{r, tidy=True}
+```{r }
 a <- b <- c <- 6
 aa <- 0
 bb <- 5
@@ -82,10 +87,12 @@ print(aa)
 print(bb)
 ```
 ----
-`$`& `[`&`[[`
+
+### `$`& `[`&`[[`
 以上3个操作符用于提取和取代对象中的元素
 
 example
+
 ```{r}
 x <- 1:12
 m <- matrix(1:6, nrow = 2, dimnames = list(c("a", "b"), LETTERS[1:3]))
@@ -121,9 +128,9 @@ z[[c(1, 2, 1)]]  # both "hello"
 z[[c("a", "b")]] <- "new"
 unlist(z)
 ```
+----
 
----
-`head` & `tail`
+### `head` & `tail`
 获得数据头部或尾部的部分数据，默认显示6行，可设定参数n调整。n可以为负值表示逆向去除。
 
 example
@@ -132,9 +139,9 @@ head(letters)
 head(letters, n = -6L)
 tail(letters, n = -3)
 ```
-
 ----
-`subset`
+
+### `subset`
 筛选数据集
 `subset(x, subset, select, drop = FALSE, ...)` 
 参数介绍
@@ -145,7 +152,7 @@ select  返回的数据列
 
 example
 ```{r}
-# 根据数据的内容进行筛选
+library(dplyr)
 subset(airquality, Temp > 80, select = c(Ozone, Temp)) %>% head()
 subset(airquality, Day == 1, select = -Temp) %>% head()
 subset(airquality, select = Ozone:Wind) %>% head()
@@ -154,10 +161,11 @@ subset(airquality, select = Ozone:Wind) %>% head()
 nm <- rownames(state.x77)
 subset(state.x77, grepl("^M", nm), Illiteracy:Murder)
 ```
-
 ----
-`with` & `transform`
+
+### `with` & `transform`
 对现有数据中的的列进行处理
+
 > dplyr包中有更为强大的mutate函数
 
 example
@@ -180,8 +188,8 @@ with(subset(ToothGrowth, supp == "VC"),
 ```
 ----
 
-`assign`
-为数值分配一个名字,解决为字符串赋值的问题
+### `assign`
+为数值分配一个名字,解决为字符串赋值的问题,同时可以解决环境变量问题
 
 example 
 ```{r}
@@ -189,16 +197,65 @@ for(i in 1:6) { #-- Create objects  'r.1', 'r.2', ... 'r.6' --
     nam <- paste("r", i, sep = ".")
     assign(nam, 1:i) # r.1 到 r.6都被赋值
 }
-ls(pattern = "^r..$")
+ls(pattern = "^r..$") # 正则表达式
 
 a <- 1:4
-assign("a[1]", 2)  #为a[1]赋值为2,但是实际a[1]为1,需要通过get获得
+assign("a[1]", 2)  #为'a[1]'赋值为2,但是实际a[1]为1,需要通过get获得
 a[1] == 2          # FALSE
 get("a[1]") == 2   # TRUE
 ```
 ----
 
-`get`
+### `get`
+获得变量的值,可以是全局环境变量,也可以是其他环境变量(函数也属于变量)但需要envir参数进行限制.`assign`赋值的变量,可以通过`get`获得.
+
+example
+```{r}
+test <- function(x){
+  e1 <<- environment() # 获得当前变量
+  a <- 5 # 此处亦可以 assign('a',5) 对当前环境下变量进行赋值,a必须加引号
+  b <- a+x
+  print(b)
+}
+test(2) # 执行函数
+ls() # 全局环境中的变量
+ls(envir = e1) # e2环境中的变量
+get('a', envir = e1) # 必须将变量用引号引起
+
+```
+-----
+## Comparison 
+
+### `all.equal`
+比较两个R对象是否相同,并返回报告, 可以通过 `tolerance` 调节差异的精确度
+
+example
+```{r}
+all.equal(pi, 355/113) 
+# not precise enough (default tol) > relative error
+
+d45 <- pi*(1/4 + 1:10)
+stopifnot(
+all.equal(tan(d45), rep(1, 10)))  # 误差允许范围内,认为是正确的
+all      (tan(d45) == rep(1, 10)) # 错误,因为二者并非完全相等
+
+all.equal(tan(d45), rep(1, 10), tolerance = 0)  # 将 容差设置为0,则为错
+
+```
+----
+
+### all & any
+ 判断给定的逻辑值,如果都为真,则`all`为真,`any`为真;有一者真则`any`为真,有一者假则`all`为假.
+ 
+example
+```{r}
+any(c(1==1, 2==3))  # T
+all(c(1==1, 2==2, 2==3))  # F
+```
+----
+
+### identical
+
 
 
 ```r
