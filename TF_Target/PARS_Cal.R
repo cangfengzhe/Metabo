@@ -7,12 +7,13 @@ V1 <- read.delim("/Users/lipidong/work/protein bundunce/data/PARS_GEO_Data/GSM12
 S1 <- read.delim("/Users/lipidong/work/protein bundunce/data/PARS_GEO_Data/GSM1226161_norm.GM12892_S1.tab", 
     stringsAsFactors = F, header = F)
 # V1 <- read.delim('/Users/lipidong/work/protein
-# bundunce/data/PARS_GEO_Data/sce_V1.tab', stringsAsFactors = F,
-# header = F) S1 <- read.delim('/Users/lipidong/work/protein
-# bundunce/data/PARS_GEO_Data/sce_S1.tab', stringsAsFactors = F,
-# header = F) Score <- read.delim('/Users/lipidong/work/protein
-# bundunce/data/PARS_GEO_Data/sce_Score.tab', stringsAsFactors =
-# F, header = F) S1 V1 合并
+# bundunce/data/PARS_GEO_Data/sce_V1.tab', stringsAsFactors =
+# F, header = F) S1 <- read.delim('/Users/lipidong/work/protein
+# bundunce/data/PARS_GEO_Data/sce_S1.tab', stringsAsFactors =
+# F, header = F) Score <-
+# read.delim('/Users/lipidong/work/protein
+# bundunce/data/PARS_GEO_Data/sce_Score.tab', stringsAsFactors
+# = F, header = F) S1 V1 合并
 S1_V1 <- sqldf("select * from S1 inner join V1 on S1.V1=V1.V1")
 S1_V1 <- S1_V1[, c(1, 2, 4)]
 colnames(S1_V1) <- c("name", "S1", "V1")
