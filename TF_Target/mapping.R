@@ -41,6 +41,7 @@ mRNA_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/mRNA_halflives.c
     stringsAsFactors = F)
 colnames(mRNA_hl)[1] <- 'name'
 mRNA_hl_sgd <- sqldf('select SGD.sgd_id, SGD.sys_name, mRNA_hl.* from mRNA_hl left join SGD on mRNA_hl.name = SGD.sys_name or mRNA_hl.name=SGD.std_name')
+colnames(mRNA_hl_sgd)[4] <- 'mRNA_halflife'
 # protein half lives ---- from Global Proteome Turnover
 # Analyses of the Yeasts S. cerevisiae and S. pombe
 protein_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/protein_halflives.csv", 
