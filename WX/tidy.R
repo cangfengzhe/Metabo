@@ -55,19 +55,21 @@ PARS_id <- sqldf('select ref2entrez.gene_id,PARS.name, PARS.all_score_mean, PARS
 library(sqldf)
 library(RSQLite)
 
-all_data <- sqldf('select  distinct ensembl2genbank.entrez, gene_degree_utr3.*, mRNA_hl.accession, mRNA_hl.Rate as mRNA_halflife, pro_abun.pro_abundance, pro_hl.ipi, pro_hl.pro_turnover, mRNA_abun_tissue.Sample, mRNA_abun_tissue.Value as mRNA_abundance from gene_degree_utr3 
+all_data <- sqldf('select  distinct ensembl2genbank.entrez, gene_degree_utr3.*, mRNA_hl.accession, mRNA_hl.Rate as mRNA_halflife, pro_abun.pro_abundance, pro_hl.ipi, pro_hl.pro_turnover, mRNA_abun_tissue.Sample, mRNA_abun_tissue.Value as mRNA_abundance PARS_id.name.* from gene_degree_utr3 
                   left join ensembl2genbank on gene_degree_utr3.ensembl = ensembl2genbank.ensembl_gene
                   left join mRNA_hl on mRNA_hl.Accession = ensembl2genbank.genbank
                   left join pro_abun on pro_abun.ensembl_pro= ensembl2genbank.ensembl_pro
                   
                   left join ipi2ensembl on ipi2ensembl.ensembl_gene = ensembl2genbank.ensembl_gene
                   left join pro_hl on pro_hl.ipi = ipi2ensembl.ipi
-                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree_utr3.ensembl')
+                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree_utr3.ensembl
+                  left join PARS_id on PARS_id.gene_id = ensembl2genbank.entrez or PARS_id.name = gene_degree_utr3.ensembl')
 
 all_data2 <- sqldf('select distinct * from all_data 
  
 left join ref2entrez on ref2entrez.gene_id = all_data.entrez
-                   left join NR_hl on NR_hl.name=ref2entrez.accession')
+                   left join NR_hl on NR_hl.name=ref2entrez.accession 
+                   left join PARS_id on PARS_id.gene_id = ')
 
 all_data2 <- all_data2[,c(-2, -7, -12, -17)]
 all_data2 <- all_data2[,c(-15)]
