@@ -6,7 +6,8 @@ total1 <- matrix("Pmid")
 ii = 10
 for (ii in 10:length(row.names(word))) {
     tmpWord <- as.character(word[ii, 1])
-    str <- paste(c(tmpWord, "<-downloadPmid(\"", tmpWord, "\")"), collapse = "")
+    str <- paste(c(tmpWord, "<-downloadPmid(\"", tmpWord, "\")"), 
+        collapse = "")
     tryCatch({
         system.time(eval(parse(text = str)))
     }, error = function(e) {

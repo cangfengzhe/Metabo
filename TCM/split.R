@@ -1,4 +1,4 @@
-# id以逗号分割，计算数盐�<U+3E65>
+# NA
 library(RSQLite)
 db <- dbDriver("SQLite")
 con <- dbConnect(db, "sqlite1124.db")

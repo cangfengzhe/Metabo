@@ -1,6 +1,6 @@
-disease <- read.csv("meshDiseaseAll.csv", stringsAsFactors = F, header = F)
-# 分子 先与Signs and Symptoms匹配，有文献
-# 的再进行下一步的匹配
+disease <- read.csv("meshDiseaseAll.csv", stringsAsFactors = F, 
+    header = F)
+# 分子 先与Signs and Symptoms匹配，有文献 的再进行下一步的匹配
 errorRes <- matrix(NA, 10000, 2)
 warnRes <- matrix(NA, 10000, 2)
 result <- matrix(NA, nrow(disease), 4)
@@ -16,8 +16,9 @@ for (ii in 1:nrow(disease)) {
     
     tryCatch({
         
-        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", molName, "\" [Title/Abstract]) AND ", 
-            "(\"", meshName, "\" [MeSH Terms] OR \"", meshName, "\"[Title/Abstract])"), 
+        prestr = paste(c("(\"", molName, "\" [MeSH Terms] OR \"", 
+            molName, "\" [Title/Abstract]) AND ", "(\"", meshName, 
+            "\" [MeSH Terms] OR \"", meshName, "\"[Title/Abstract])"), 
             collapse = "")
         pmid <- downloadPmid(prestr)
         if (is.matrix(pmid)) {

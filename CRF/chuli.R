@@ -11,7 +11,8 @@ result0 <- data.frame(pmid, protein, DNA)
 for (ii in 1:rowNum) {
     if (geneDataTmp[ii, 3] == "A") {
         print(ii)
-        pmid <- substr(geneDataTmp[ii, 1], 4, nchar(geneDataTmp[ii, 1]))
+        pmid <- substr(geneDataTmp[ii, 1], 4, nchar(geneDataTmp[ii, 
+            1]))
         for (jj in (ii + 1):rowNum) {
             if (geneDataTmp[jj, 3] == "B-protein") {
                 protein <- geneDataTmp[jj, 1]

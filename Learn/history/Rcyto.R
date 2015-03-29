@@ -1,8 +1,8 @@
 library(RCytoscape)
 g <- new("graphNEL", edgemode = "directed")
-# 定义节点属性 分子类型
-g <- initNodeAttribute(graph = g, attribute.name = "moleculeType", attribute.type = "char", 
-    default.value = "undefined")
+# NA
+g <- initNodeAttribute(graph = g, attribute.name = "moleculeType", 
+    attribute.type = "char", default.value = "undefined")
 g <- initNodeAttribute(graph = g, "lfc", "numeric", 0)
 
 g <- addNode("A", g)
@@ -22,10 +22,11 @@ layout(cw, layout.name = "grid")
 setDefaultNodeShape(cw, "octagon")
 setDefaultNodeColor(cw, "#AAFF88")
 
-# noa.names 检索特定图的节点属性
+# NA
 
 displayGraph(cw)
-# 根据lfc取值，对node进行颜色处理
-setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", "#FF0000"), mode = "interpolate")
-# 重画
+# NA
+setNodeColorRule(cw, "lfc", c(-3, 0, 3), c("#00FF00", "#FFFFFF", 
+    "#FF0000"), mode = "interpolate")
+# NA
 redraw(cw) 

@@ -5,7 +5,8 @@ View(data)
 data[, 3] <- as.numeric(data[, 3])
 hist(data[, 3])
 
-predict <- read.csv("result\\final\\network\\predict.csv", header = F, stringsAsFactor = F)
+predict <- read.csv("result\\final\\network\\predict.csv", header = F, 
+    stringsAsFactor = F)
 View(predict)
 class(predict[, 2])
 roc <- function(score) {
@@ -25,7 +26,8 @@ wenxianCount <- mapply(litCount, aa)
 outlier <- mapply(roc, aa)
 library(ggplot2)
 df <- data.frame(yuzhi = aa, wenxianCount = wenxianCount, outlier = outlier)
-ggplot(df, aes(yuzhi, outlier)) + geom_line() + geom_line(aes(yuzhi, wenxianCount))
+ggplot(df, aes(yuzhi, outlier)) + geom_line() + geom_line(aes(yuzhi, 
+    wenxianCount))
 
 
 plot(data[, 3], type = "l")
@@ -35,7 +37,8 @@ hist(data[, 3])
 
 # 采用pRCO package 计算ROC曲线
 
-rocData <- read.csv("result//final//network//roc.csv", stringsAsFactors = F, header = F)
+rocData <- read.csv("result//final//network//roc.csv", stringsAsFactors = F, 
+    header = F)
 
 roc(response = rocData[, 3], predictor = rocData[, 2], plot = T)
 

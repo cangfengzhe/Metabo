@@ -21,8 +21,8 @@ for (ii in 1:nrow(B)) {
         ABCount <- downloadPmid(ABStr)
         # AorBStr<-ABStr<-paste(c(A,' OR ',str),collapse='')
         # AorBCount<-pmidCount(AorBStr);
-        mat <- matrix(c(ABCount, ACount - ABCount, BCount - ABCount, AorBCount - 
-            ACount - BCount + ABCount), 2)
+        mat <- matrix(c(ABCount, ACount - ABCount, BCount - ABCount, 
+            AorBCount - ACount - BCount + ABCount), 2)
         pvalue <- chisq.test(mat, correct = T)$p.value
         ABPmid[ii, 1] = B[ii, 1]
         ABPmid[ii, 2] = B[ii, 2]

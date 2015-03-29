@@ -2,7 +2,7 @@
 #' latex math equivalents. (This is a bit like plotmath, but for text output
 #' instead of graphical output.).  It is more complicated than the HTML dsl,
 #' because not only do we need to convert functions, we also need to convert
-#' symbols.  We'll also add a "default" conversion, so that if we don't know
+#' symbols.  We'll also add a 'default' conversion, so that if we don't know
 #' how to convert a function, we'll fall back to a standard representation.
 #' Like the HTML dsl, we'll also write functionals to make it easier to
 #' generated the translators.
@@ -29,8 +29,8 @@
 #' the unevaluated expression and evaluate it in a special environment.
 
 to_math <- function(x) {
-  expr <- substitute(x)
-  eval(expr, latex_env(expr))
+    expr <- substitute(x)
+    eval(expr, latex_env(expr))
 }
 
 #' This time we're going to create that environment with a function, because
@@ -40,17 +40,17 @@ to_math <- function(x) {
 #' possible to select column ranges by name (`subset(mtcars, cyl:wt)`): we
 #' just bind a name to a string in a special environment.
 
-greek <- c(
-  "alpha", "theta", "tau", "beta", "vartheta", "pi", "upsilon", "gamma", "gamma",
-  "varpi", "phi", "delta", "kappa", "rho", "varphi", "epsilon", "lambda",
-  "varrho", "chi", "varepsilon", "mu", "sigma", "psi", "zeta", "nu", "varsigma",
-  "omega", "eta", "xi", "Gamma", "Lambda", "Sigma", "Psi", "Delta", "Xi",
-  "Upsilon", "Omega", "Theta", "Pi", "Phi")
+greek <- c("alpha", "theta", "tau", "beta", "vartheta", "pi", "upsilon", 
+    "gamma", "gamma", "varpi", "phi", "delta", "kappa", "rho", 
+    "varphi", "epsilon", "lambda", "varrho", "chi", "varepsilon", 
+    "mu", "sigma", "psi", "zeta", "nu", "varsigma", "omega", "eta", 
+    "xi", "Gamma", "Lambda", "Sigma", "Psi", "Delta", "Xi", "Upsilon", 
+    "Omega", "Theta", "Pi", "Phi")
 greek_list <- setNames(paste0("\\", symbols), symbols)
 greek_env <- list2env(as.list(slatex), parent = emptyenv())
 
 latex_env <- function(expr) {
-  greek_env
+    greek_env
 }
 
 to_math(pi)
@@ -64,13 +64,15 @@ to_math(beta)
 #' it recurses down through its arguments.
 
 all_names <- function(x) {
-  # Base cases
-  if (is.name(x)) return(as.character(x))
-  if (!is.call(x)) return(NULL)
-
-  # Recursive case
-  children <- lapply(x[-1], all_names)
-  unique(unlist(children))
+    # Base cases
+    if (is.name(x)) 
+        return(as.character(x))
+    if (!is.call(x)) 
+        return(NULL)
+    
+    # Recursive case
+    children <- lapply(x[-1], all_names)
+    unique(unlist(children))
 }
 
 all_names(quote(x + y + f(a, b, c, 10)))
@@ -81,11 +83,11 @@ all_names(quote(x + y + f(a, b, c, 10)))
 #' environment.
 
 latex_env <- function(expr) {
-  names <- all_names(expr)
-  symbol_list <- setNames(as.list(names), names)
-  symbol_env <- list2env(symbol_list)
-
-  symbol_env
+    names <- all_names(expr)
+    symbol_list <- setNames(as.list(names), names)
+    symbol_env <- list2env(symbol_list)
+    
+    symbol_env
 }
 
 to_math(x)
@@ -94,24 +96,25 @@ to_math(pi)
 
 #' But we want to use both the greek symbols and the default symbols, so we
 #' need to combine the environments somehow in the function. Since we want to
-#' prefer Greek to the defaults (e.g. `to_math(pi)` should give `"\\pi", not
-#' `"pi"`), `symbol_env` needs to be the parent of `greek_env`.  That
+#' prefer Greek to the defaults (e.g. `to_math(pi)` should give `'\\pi', not
+#' `'pi'`), `symbol_env` needs to be the parent of `greek_env`.  That
 #' necessitates copying `greek_env`.  Strangely R doesn't come with a function
 #' for cloning environments, but we can easily create one by combining two
 #' existing functions:
 
 clone_env <- function(env, parent = parent.env(env)) {
-  list2env(as.list(env), parent = parent)
+    list2env(as.list(env), parent = parent)
 }
 
 latex_env <- function(expr) {
-  # Default for names in expression is to convert to string equivalent
-  names <- all_names(expr)
-  symbol_list <- setNames(as.list(names), names)
-  symbol_env <- list2env(symbol_list)
-
-  #
-  clone_env(greek_env, symbol_env)
+    # Default for names in expression is to convert to string
+    # equivalent
+    names <- all_names(expr)
+    symbol_list <- setNames(as.list(names), names)
+    symbol_env <- list2env(symbol_list)
+    
+    # 
+    clone_env(greek_env, symbol_env)
 }
 
 to_math(x)
@@ -123,15 +126,15 @@ to_math(pi)
 #' These functions are very simple since they only have to assemble strings.
 
 unary_op <- function(left, right) {
-  function(e1) {
-    paste0(left, e1, right)
-  }
+    function(e1) {
+        paste0(left, e1, right)
+    }
 }
 
 binary_op <- function(sep) {
-  function(e1, e2) {
-    paste0(e1, sep, e2)
-  }
+    function(e1, e2) {
+        paste0(e1, sep, e2)
+    }
 }
 
 #' Then we'll populate an environment with functions created this way. The list
@@ -158,7 +161,7 @@ fenv$sin <- unary_op("\\sin(", ")")
 fenv$log <- unary_op("\\log(", ")")
 fenv$abs <- unary_op("\\left| ", "\\right| ")
 fenv$frac <- function(a, b) {
-  paste0("\\frac{", a, "}{", b, "}")
+    paste0("\\frac{", a, "}{", b, "}")
 }
 
 # Labelling
@@ -170,16 +173,16 @@ fenv$tilde <- unary_op("\\tilde{", "}")
 #' rules wrt functions vs. other objects)
 
 latex_env <- function(expr) {
-  # Default symbols
-  names <- all_names(expr)
-  symbol_list <- setNames(as.list(names), names)
-  symbol_env <- list2env(symbol_list)
-
-  # Known symbols
-  greek_env <- clone_env(greek_env, parent = symbol_env)
-
-  # Known functions
-  clone_env(f_env, greek_env)
+    # Default symbols
+    names <- all_names(expr)
+    symbol_list <- setNames(as.list(names), names)
+    symbol_env <- list2env(symbol_list)
+    
+    # Known symbols
+    greek_env <- clone_env(greek_env, parent = symbol_env)
+    
+    # Known functions
+    clone_env(f_env, greek_env)
 }
 
 to_math(sin(x + pi))
@@ -191,13 +194,14 @@ to_math(log(x_i^2))
 #' a little computing on the language to figure them out:
 
 all_calls <- function(x) {
-  # Base name
-  if (!is.call(x)) return(NULL)
-
-  # Recursive case
-  fname <- as.character(x[[1]])
-  children <- lapply(x[-1], all_calls)
-  unique(c(fname, unlist(children, use.names = FALSE)))
+    # Base name
+    if (!is.call(x)) 
+        return(NULL)
+    
+    # Recursive case
+    fname <- as.character(x[[1]])
+    children <- lapply(x[-1], all_calls)
+    unique(c(fname, unlist(children, use.names = FALSE)))
 }
 
 all_calls()
@@ -206,55 +210,55 @@ all_calls()
 #' call
 
 unknown_op <- function(op) {
-  force(op)
-  function(...) {
-    contents <- paste(..., collapse=", ")
-    paste0("\\mathtt{", op, "} \\left( ", contents, " \\right )")
-  }
+    force(op)
+    function(...) {
+        contents <- paste(..., collapse = ", ")
+        paste0("\\mathtt{", op, "} \\left( ", contents, " \\right )")
+    }
 }
 
 #' And again we update `latex_env()`:
 
 latex_env <- function(expr) {
-  # Default symbols
-  symbols <- all_names(expr)
-  symbol_list <- setNames(as.list(symbols), symbols)
-  symbol_env <- list2env(symbol_list)
-
-  # Known symbols
-  greek_env <- clone_env(greek_env, parent = symbol_env)
-
-  # Default functions
-  calls <- all_calls(expr)
-  call_list <- lapply(calls, unknown_op)
-  call_env <- list2env(call_list, parent = greek_env)
-
-  # Known functions
-  clone_env(f_env, greek_env)
+    # Default symbols
+    symbols <- all_names(expr)
+    symbol_list <- setNames(as.list(symbols), symbols)
+    symbol_env <- list2env(symbol_list)
+    
+    # Known symbols
+    greek_env <- clone_env(greek_env, parent = symbol_env)
+    
+    # Default functions
+    calls <- all_calls(expr)
+    call_list <- lapply(calls, unknown_op)
+    call_env <- list2env(call_list, parent = greek_env)
+    
+    # Known functions
+    clone_env(f_env, greek_env)
 }
 
 # character vector -> environment
 ceply <- function(x, f, ..., parent = parent.frame()) {
-  l <- lapply(x, f, ...)
-  names(l) <- x
-  list2env(l, parent = parent)
+    l <- lapply(x, f, ...)
+    names(l) <- x
+    list2env(l, parent = parent)
 }
 
 latex_env <- function(expr) {
-  # Default symbols
-  symbol_env <- ceply(all_names(expr), identity, parent = emptyenv())
-
-  # Known symbols
-  greek_env <- clone_env(greek_env, parent = symbol_env)
-
-  # Default functions
-  call_env <- ceply(all_calls(expr), unknown_op, parent = greek_env)
-
-  # Known functions
-  clone_env(f_env, greek_env)
+    # Default symbols
+    symbol_env <- ceply(all_names(expr), identity, parent = emptyenv())
+    
+    # Known symbols
+    greek_env <- clone_env(greek_env, parent = symbol_env)
+    
+    # Default functions
+    call_env <- ceply(all_calls(expr), unknown_op, parent = greek_env)
+    
+    # Known functions
+    clone_env(f_env, greek_env)
 }
 
 #' Exercises:
 #'
 #' * complete this DSL to support all the functions that `plotmath` supports
-#'
+#' 

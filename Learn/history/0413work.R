@@ -17,9 +17,12 @@ attach(chickwts)
 chickwts
 shapiro.test(chickwts[feed == "horsebean", 1])
 shapiro.test(chickwts[feed == "linseed", 1])
-var.test(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 1])
-cor.test(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 1])  #??????????????????????
-plot(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 1])
+var.test(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 
+    1])
+cor.test(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 
+    1])  #??????????????????????
+plot(chickwts[feed == "horsebean", 1], chickwts[feed == "linseed", 
+    1])
 # ????????????
 zuoye02 = read.table("E:\\????\\advanced biostatistics\\0413??????\\????????.txt")
 attach(zuoye02)
@@ -54,8 +57,8 @@ wilcox.test(V1, V2)
 
 
 # fisher exact test
-zuoye05 = matrix(c(4, 5, 18, 6), 2, 2, dimnames = list(c("pre", "nonpre"), c("+", 
-    "-")))
+zuoye05 = matrix(c(4, 5, 18, 6), 2, 2, dimnames = list(c("pre", 
+    "nonpre"), c("+", "-")))
 zuoye05
 fisher.test(zuoye05, alternative = "t", simulate.p.value = T, B = 10000)
 detach()

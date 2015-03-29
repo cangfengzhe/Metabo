@@ -1,5 +1,5 @@
-# As far as I can tell, these details are not documented anywhere:
-# ?data.frame, ?Ops.data.frame, ?"+",  R language,
+# As far as I can tell, these details are not documented
+# anywhere: ?data.frame, ?Ops.data.frame, ?'+', R language,
 # Ops.data.frame for implementation details
 options(digits = 3)
 
@@ -39,17 +39,11 @@ m <- matrix(c(0, 10), ncol = 2, nrow = 10, byrow = TRUE)
 df_2 <- as.data.frame(m)
 v <- as.numeric(m)
 
-microbenchmark(
-  df + v,
-  df + l,
-  df + l_2,
-  df + m,
-  df + df_2
-)
+microbenchmark(df + v, df + l, df + l_2, df + m, df + df_2)
 
 # Adding a list is fastest, closely followed by a data frame.
 # Adding matrices/vectors is slowest.
 
 # Different with logical operations: you get a matrix back.
 df > 10
-# This is presumably to make subsetting easier
+# This is presumably to make subsetting easier 

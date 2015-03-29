@@ -1,4 +1,4 @@
-# 寑�<U+3E39> 少于1万的进行处理
+# NA
 View(meshWan)
 save(meshWan, molWan, file = "lessWan.rdata")
 meshWan[, 3] <- paste("a", 1:nrow(meshWan), sep = "")
@@ -11,8 +11,8 @@ meshError <- NA
 n <- 0
 for (ii in 1:nrow(meshWan)) {
     tryCatch({
-        str <- paste(meshWan[ii, 3], "<-downloadPmid(\"", meshWan[ii, 1], "\")", 
-            collapse = "")
+        str <- paste(meshWan[ii, 3], "<-downloadPmid(\"", meshWan[ii, 
+            1], "\")", collapse = "")
         eval(parse(text = str))
         print(ii)
     }, error = function(e) {

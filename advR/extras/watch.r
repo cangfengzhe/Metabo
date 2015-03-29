@@ -1,17 +1,17 @@
 watch <- function(varname) {
-  old <- get(varname)
-
-  changed <- function(...) {
-    new <- get(varname)
-    if (!identical(old, new)) {
-      message(varname, " is now ", new)
-      old <<- new
+    old <- get(varname)
+    
+    changed <- function(...) {
+        new <- get(varname)
+        if (!identical(old, new)) {
+            message(varname, " is now ", new)
+            old <<- new
+        }
+        TRUE
     }
-    TRUE
-  }
-  invisible(addTaskCallback(changed))
+    invisible(addTaskCallback(changed))
 }
 
 a <- 1
 watch("a")
-a <- 2
+a <- 2 
