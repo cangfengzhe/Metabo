@@ -34,7 +34,8 @@ mf_utr5_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, mf_utr5.* from mf_utr5 le
 mf_utr3 <- read.csv("./data/sce_mF_utr3_out.csv", stringsAsFactors = F)
 mf_utr3_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, mf_utr3.* from mf_utr3 left join SGD on mf_utr3.name = SGD.sys_name or mf_utr3.name=SGD.std_name")
 
-# mRNA half lives ---- from Global Analysis of mRNA Isoform
+# mRNA half lives ---- 
+# from Global Analysis of mRNA Isoform
 # Half-Lives Reveals Stabilizing and Destabilizing Elements in
 # Yeast
 mRNA_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/mRNA_halflives.csv", 
@@ -42,6 +43,7 @@ mRNA_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/mRNA_halflives.c
 colnames(mRNA_hl)[1] <- "name"
 mRNA_hl_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, mRNA_hl.* from mRNA_hl left join SGD on mRNA_hl.name = SGD.sys_name or mRNA_hl.name=SGD.std_name")
 colnames(mRNA_hl_sgd)[4] <- "mRNA_halflife"
+
 # protein half lives ---- from Global Proteome Turnover
 # Analyses of the Yeasts S. cerevisiae and S. pombe
 protein_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/protein_halflives.csv", 
@@ -52,6 +54,16 @@ library(splitstackshape)
 protein_hl <- cSplit(protein_hl, splitCols = 1, sep = ";", direction = "long")
 colnames(protein_hl) <- c("name", "hl_min", "hl_hour")
 protein_hl_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, protein_hl.* from protein_hl left join SGD on protein_hl.name = SGD.sys_name or protein_hl.name=SGD.std_name")
+protein_hl_sgd <- filter(protein_hl_sgd, hl_min != 'n.d.')
+protein_hl_sgd$hl_min <- as.numeric(protein_hl_sgd$hl_min 
+)
+# mRNA_abun ----
+# data from Protein abundances are more conserved than mRNA abundances across diverse taxa
+mRNA_abun <- read.csv('./raw_data/mRNA_abun.csv', stringsAsFactors = F)
+mRNA_abun_sgd <- mutate(mRNA_abun, mRNA_abun_sum = (mRNA_abun_array+mRNA_abun_seq)/2) %>%
+    left_join(SGD, by = c('name' = 'sys_name')) %>% 
+    select(c(6,3,4,5))
+
 
 
 # ppi ---- data from BIOGRID
@@ -66,15 +78,62 @@ target_list <- as.data.frame(unique(tf_target[, 2]))
 colnames(target_list) <- "name"
 # sqldf 采用sqlite数据库 大小写敏感
 target_sgd <- sqldf("select distinct target_list.*, SGD.sgd_id, SGD.sys_name from target_list left join SGD on LOWER(target_list.name) = LOWER(SGD.sys_name) OR LOWER(target_list.name) = LOWER(SGD.std_name) ")
+
 write.csv(target_sgd, file = "./data/target_sgd.csv")
 # 人工匹配
 target_sgd <- read.csv("./data/target_sgd.csv", stringsAsFactors = F)
 tf_target_sgd <- sqldf("select distinct tf_target.*, target_sgd.sgd_id from tf_target left join target_sgd on target_sgd.name = tf_target.target")
 
 
+# calculate the indegree
+tf_target <- unique(tf_target_sgd[,c(1,3)]) %>% na.omit()
+g <- graph.data.frame(tf_target)
+is.directed(g)
+vcount(g)
+in_degree <- degree(g, mode = 'in')
+in_degree <- in_degree[unique(tf_target[,2])]
+in_degree <- as.data.frame(in_degree)
+in_degree$name <- rownames(in_degree)
 
-save.image("./data/all_data.rdata")
-all_data <- sqldf("select SGD.*, pars_sgd.mean as pars, protein_abun_sgd.abundance as protein_abundance from SGD left join pars_sgd on SGD.sgd_id = pars_sgd.sgd_id\n                  left join protein_abun_sgd on protein_abun_sgd.sgd_id = SGD.sgd_id")
+# dn/ds data ----
+# data from Functional genomic analysis of the rates of protein evolution. 
+dn_ds <-  read.csv('/Users/lipidong/work/RFile/TF_Target/data/dn_ds.csv', stringsAsFactors = F)
+dn_ds_sgd <- 
+  left_join(da_ds, SGD, by = c('ORF' = 'sys_name') ) %>% 
+  select(c(8,3,4,5,7)) 
+colnames(dn_ds_sgd) <- c('sgd_id', 'ds', 'dn', 'dn_ds', 'dn_ds_adj')
 
-all_data <- sqldf("select SGD.")
- 
+
+all_data <- sqldf("select SGD.sgd_id, SGD.sys_name,in_degree.in_degree,dn_ds_sgd.ds, dn_ds_sgd.dn, dn_ds_sgd.dn_ds, dn_ds_sgd.dn_ds_adj, protein_hl_sgd.hl_min,mRNA_abun_sgd.mRNA_abun_array, mRNA_abun_sgd.mRNA_abun_seq, mRNA_abun_sgd.mRNA_abun_sum, pars_sgd.mean as pars, protein_abun_sgd.abundance as protein_abundance, mRNA_hl_sgd.mRNA_halflife, mf_all_seq_sgd.mf as all_seq_mf, mf_cds_sgd.cds_mf as cds_mf,mf_utr5_sgd.utr5_mf, mf_utr3_sgd.utr3_mf\nfrom SGD left join pars_sgd on SGD.sgd_id = pars_sgd.sgd_id\n                  left join protein_abun_sgd on protein_abun_sgd.sgd_id = SGD.sgd_id \n                  left join mf_all_seq_sgd on mf_all_seq_sgd.sgd_id = SGD.sgd_id\n                  left join mf_cds_sgd on mf_cds_sgd.sgd_id = SGD.sgd_id \n                  left join mf_utr5_sgd on mf_utr5_sgd.sgd_id = SGD.sgd_id\n                  left join mf_utr3_sgd on mf_utr3_sgd.sgd_id = SGD.sgd_id   left join mRNA_hl_sgd on mRNA_hl_sgd.sgd_id = SGD.sgd_id   left join dn_ds_sgd on dn_ds_sgd.sgd_id = SGD.sgd_id   left join in_degree on in_degree.name = SGD.sgd_id   left join protein_hl_sgd on protein_hl_sgd.sgd_id = SGD.sgd_id  left join mRNA_abun_sgd on mRNA_abun_sgd.sgd_id = SGD.sgd_id")
+
+
+# calculate the correlation
+colnum <- 18
+corr <- matrix(NA, colnum-2, colnum-2)
+colnames(corr) <- colnames(all_data[,3:colnum])
+rownames(corr) <- colnames(all_data[,3:colnum])
+sapply(1: (colnum-2), function(ii){
+  sapply(1: (colnum-2), function(jj){
+    print(ii)
+    print(jj)
+    df <- data.frame(all_data[,ii+2],all_data[,jj+2]) 
+    df <- na.omit(df)
+    corr[ii,jj] <<-  cor.test(df[,1], df[, 2], method = 'spearman')$estimate
+    # cor.test(all_data[,ii+2],log2(all_data[,jj+2]), method = 'spearman')$estimate
+    
+    
+  })
+})
+
+save.image('./data/all_data.rdata')
+write.csv(all_data, file = './data/dnds_yeast_result.csv', row.names = F)
+write.csv(corr, file = './data/dnds_yeast_correlation.csv')
+
+jj=6
+
+
+cor.test(all_data[,4], all_data[, 7])$estimate
+
+shapiro.test(all_data[,5])
+shapiro.test(rnorm(100))
+

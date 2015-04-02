@@ -1,6 +1,6 @@
 drugFinger <- read.csv("C:\\Users\\Administrator\\Desktop\\similar\\drug_fingerprint.csv", 
-    header = F)  #Ò©ÎïÖ¸ÎÆÍ¼Æ×
-drugTarget <- read.csv("E:\\code\\drugTarget\\drugTarget.csv")  #Ò©Îï-°ĞµãÏà»¥¹ØÏµ
+    header = F)  #Ò©??Ö¸??Í¼??
+drugTarget <- read.csv("E:\\code\\drugTarget\\drugTarget.csv")  #Ò©??-?Ğµ??à»¥??Ïµ
 colnames(drugTarget) <- c("drugTargetID", "drugID", "targetID", "action")
 colnames(drugTarget)
 

@@ -62,3 +62,9 @@ sapply(1:length(unknow), function(ii) {
 write.csv(cds_pos, "./data/cds_pos.csv")
 write.csv(utr3_pos, "./data/utr3_pos.csv")
 write.csv(utr5_pos, "./data/utr5_pos.csv") 
+
+
+# dn_ds
+
+View(da_ds)
+
