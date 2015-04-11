@@ -5,7 +5,6 @@ SGD <- read.csv("/Users/lipidong/work/protein bundunce/data/sgd_gene_mapping.csv
 SGD <- cSplit(SGD, 4, sep = "|", direction = "long")
 library(sqldf)
 
-
 # data from http://genie.weizmann.ac.il/pubs/PARS10/
 pars <- read.csv("/Users/lipidong/work/protein bundunce/data/pars.csv", 
     stringsAsFactors = F)
@@ -57,6 +56,10 @@ protein_hl_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, protein_hl.* from prot
 protein_hl_sgd <- filter(protein_hl_sgd, hl_min != 'n.d.')
 protein_hl_sgd$hl_min <- as.numeric(protein_hl_sgd$hl_min 
 )
+View(protein_hl_sgd)
+protein_hl_sgd01 <- group_by(protein_hl_sgd, sgd_id) %>% 
+  summarise(hl_min = mean(hl_min))
+protein_hl_sgd <- protein_hl_sgd01
 # mRNA_abun ----
 # data from Protein abundances are more conserved than mRNA abundances across diverse taxa
 mRNA_abun <- read.csv('./raw_data/mRNA_abun.csv', stringsAsFactors = F)
@@ -104,11 +107,38 @@ dn_ds_sgd <-
 colnames(dn_ds_sgd) <- c('sgd_id', 'ds', 'dn', 'dn_ds', 'dn_ds_adj')
 
 
-all_data <- sqldf("select SGD.sgd_id, SGD.sys_name,in_degree.in_degree,dn_ds_sgd.ds, dn_ds_sgd.dn, dn_ds_sgd.dn_ds, dn_ds_sgd.dn_ds_adj, protein_hl_sgd.hl_min,mRNA_abun_sgd.mRNA_abun_array, mRNA_abun_sgd.mRNA_abun_seq, mRNA_abun_sgd.mRNA_abun_sum, pars_sgd.mean as pars, protein_abun_sgd.abundance as protein_abundance, mRNA_hl_sgd.mRNA_halflife, mf_all_seq_sgd.mf as all_seq_mf, mf_cds_sgd.cds_mf as cds_mf,mf_utr5_sgd.utr5_mf, mf_utr3_sgd.utr3_mf\nfrom SGD left join pars_sgd on SGD.sgd_id = pars_sgd.sgd_id\n                  left join protein_abun_sgd on protein_abun_sgd.sgd_id = SGD.sgd_id \n                  left join mf_all_seq_sgd on mf_all_seq_sgd.sgd_id = SGD.sgd_id\n                  left join mf_cds_sgd on mf_cds_sgd.sgd_id = SGD.sgd_id \n                  left join mf_utr5_sgd on mf_utr5_sgd.sgd_id = SGD.sgd_id\n                  left join mf_utr3_sgd on mf_utr3_sgd.sgd_id = SGD.sgd_id   left join mRNA_hl_sgd on mRNA_hl_sgd.sgd_id = SGD.sgd_id   left join dn_ds_sgd on dn_ds_sgd.sgd_id = SGD.sgd_id   left join in_degree on in_degree.name = SGD.sgd_id   left join protein_hl_sgd on protein_hl_sgd.sgd_id = SGD.sgd_id  left join mRNA_abun_sgd on mRNA_abun_sgd.sgd_id = SGD.sgd_id")
+# mRNA transcription rate----
+# data from A Complete Set of Nascent Transcription Rates for Yeast Genes
+trans_rate <- read.csv('./raw_data/transcript_rate.csv', stringsAsFactors = F)
 
 
-# calculate the correlation
-colnum <- 18
+
+
+# mapping over
+# essetial gene
+# system.time({
+# essential <-   read.delim('./raw_data/gene_essentiality.txt', stringsAsFactors = F) %>% 
+#   tbl_df() %>% 
+#   filter(sciName == 'Saccharomyces cerevisiae') %>% 
+#   select(locus, essential) %>% 
+#   left_join(SGD, by=c('locus'='sys_name')) %>% 
+#   select(sgd_id,essential) %>% 
+#   distinct()
+# 
+# })
+# 
+# all_data_essential <- all_data %>% 
+#    left_join(essential, by = c('sgd_id' = 'sgd_id')) %>% 
+#    filter(essential == 'N')
+# 
+# # calculate the correlation
+# all_data <- filter(all_data, is.na(in_degree)==F)
+# corr_pre_translation <- corr
+
+
+# calulate the correlation
+all_data <- has_intron
+colnum <- ncol(all_data)
 corr <- matrix(NA, colnum-2, colnum-2)
 colnames(corr) <- colnames(all_data[,3:colnum])
 rownames(corr) <- colnames(all_data[,3:colnum])
@@ -116,24 +146,26 @@ sapply(1: (colnum-2), function(ii){
   sapply(1: (colnum-2), function(jj){
     print(ii)
     print(jj)
-    df <- data.frame(all_data[,ii+2],all_data[,jj+2]) 
+    df <- data.frame(all_data[,ii+2],all_data[,jj+2])
+    # df <- data.frame(log(all_data[,ii+2]),log(all_data[,jj+2])) 
     df <- na.omit(df)
-    corr[ii,jj] <<-  cor.test(df[,1], df[, 2], method = 'spearman')$estimate
+    try({
+      
+        aa <- cor.test(df[,1], df[, 2], method = 'spearman')
+        # estimate <- signif(aa$estimate,3)
+      # pvalue <- signif(aa$p.value, 3)
+      corr[ii,jj] <<- aa$estimate
+        # paste(c(estimate, '/',pvalue), collapse = '')
+    })
+    
     # cor.test(all_data[,ii+2],log2(all_data[,jj+2]), method = 'spearman')$estimate
     
     
   })
 })
 
-save.image('./data/all_data.rdata')
-write.csv(all_data, file = './data/dnds_yeast_result.csv', row.names = F)
-write.csv(corr, file = './data/dnds_yeast_correlation.csv')
 
-jj=6
+write.csv(corr, file = './data/yeast_corr_0407.csv')
 
 
-cor.test(all_data[,4], all_data[, 7])$estimate
-
-shapiro.test(all_data[,5])
-shapiro.test(rnorm(100))
 

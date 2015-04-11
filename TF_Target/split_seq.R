@@ -1,12 +1,13 @@
-# split cds utr
+# split cds utr in order to calulate the mF
 library(Biostrings)
 pos <- read.table("/Users/lipidong/work/protein bundunce/data/sce_gene_position .txt", 
     stringsAsFactors = F)
 cds_pos <- filter(pos, V2 == "CDS")
 utr5_pos <- filter(pos, V2 == "5UTR")
 utr3_pos <- filter(pos, V2 == "3UTR")
-
+  
 dna_seq <- readDNAStringSet("/Users/lipidong/work/protein bundunce/data/sce_gene_cds_utr.fasta")
+# 下载的pos表中有，但是序列里没有的数据
 dna_seq_add <- readDNAStringSet("./data/unknow.fasta")
 
 dna_seq <- rbind(as.data.frame(dna_seq, stringsAsFactors = F), 
@@ -18,10 +19,11 @@ sapply(1:nrow(cds_pos), function(ii) {
         3], cds_pos[ii, 4])
     print(ii)
 })
-filter(cds_pos, is.na(V5) == T)
+# filter(cds_pos, is.na(V5) == T)
 
 # 3'UTR
 sapply(1:nrow(utr3_pos), function(ii) {
+  #序列加载到对应的名字和位置上
     utr3_pos[ii, 5] <<- substr(dna_seq[utr3_pos[ii, 1], 1], utr3_pos[ii, 
         3], utr3_pos[ii, 4])
     print(ii)

@@ -10,6 +10,9 @@ gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene
 gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_Intergenic_ncRNA.csv", 
     stringsAsFactors = F)
 
+gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_Overlapping_ncRNA.csv", 
+                        stringsAsFactors = F)
+
 
 gene_degree$ensembl <- do.call("rbind", strsplit(gene_degree[, 
     1], split = "\\."))[, 1]
@@ -30,17 +33,21 @@ colnames(ensembl2genbank) <- c("entrez", "ensembl_pro", "ensembl_gene",
 mRNA_hl <- read.csv("/Users/lipidong/work/WX/human mRNA half life data.csv", 
     stringsAsFactors = F)[, c(1, 3, 4)]
 
-mRNA_hl <- sqldf("select ensembl2genbank.entrez, avg(mRNA_hl.Rate) as mRNA_halflife from mRNA_hl left join ensembl2genbank on ensembl2genbank.genbank = mRNA_hl.Accession group by ensembl2genbank.entrez")
+mRNA_hl <- sqldf("select ensembl2genbank.entrez, avg(mRNA_hl.Rate) as mRNA_halflife, avg(StdDev) as mRNA_halflife_std from mRNA_hl left join ensembl2genbank on ensembl2genbank.genbank = mRNA_hl.Accession group by ensembl2genbank.entrez")
 mRNA_hl <- na.omit(mRNA_hl)
-# removed
-pro_hl <- read.csv("/Users/lipidong/work/WX/protein_hl.csv", stringsAsFactors = F)
-pro_hl <- pro_hl[, c(1, 4, 5)]
-colnames(pro_hl) <- c("ipi", "pro_turnover", "pro_whole_half_life")
-ipi2ensembl <- read.csv("/Users/lipidong/work/WX/ipi2ensembl.csv", 
-    stringsAsFactors = F, header = F)
-ipi2ensembl <- ipi2ensembl[, c(5, 2, 3)]
-colnames(ipi2ensembl) <- c("ipi", "ensembl_pro", "ensembl_gene")
 
+
+# pro_hl----
+pro_hl_raw <- read.csv("/Users/lipidong/work/WX/protein_hl.csv", stringsAsFactors = F)
+pro_hl_raw <- pro_hl_raw[, c(1, 4, 5)]
+colnames(pro_hl_raw) <- c("ipi", "pro_turnover", "pro_whole_half_life")
+ipi2entrez <- read.csv("/Users/lipidong/work/WX/ipi2gene.csv", 
+    stringsAsFactors = F)
+pro_hl <- left_join(pro_hl_raw, ipi2entrez, by = c('ipi' = 'ipi')) %>% 
+  select(gene_id, pro_turnover) %>% 
+  group_by(gene_id) %>% 
+  summarise(pro_turnover = mean(pro_turnover)) %>% 
+  na.omit()
 
 pro_abun <- read.table("~/work/WX/protein_abundance.txt", stringsAsFactors = F, 
     header = T)
@@ -74,7 +81,9 @@ mRNA_abun <- read.csv("/Users/lipidong/work/WX/rna_abundance.csv",
     stringsAsFactors = F)
 tissue <- data.frame(tissue = unique(mRNA_abun[, 2])[45:76])
 mRNA_abun_tissue <- sqldf("select mRNA_abun.* from mRNA_abun inner join tissue on tissue.tissue=mRNA_abun.Sample")
-mRNA_abun_tissue <- sqldf("select distinct Gene,avg(value) as avg from mRNA_abun_tissue group by Gene")
+# mRNA_abun_tissue <- sqldf("select distinct Gene,avg(value) as avg from mRNA_abun_tissue group by Gene")
+mRNA_abun_tissue <- group_by(mRNA_abun_tissue, Gene) %>% 
+  summarise(mRNA_tissue_abun_avg = mean(Value), mRNA_tissue_abun_std = sd(Value))
 
 # PARS score ----
 PARS01 <- read.csv("/Users/lipidong/work/WX/pars_GM12892_MBE.csv", 
@@ -115,17 +124,46 @@ pars <- na.omit(pars_tmp)
 library(sqldf)
 library(RSQLite)
 
+enst_len_raw <- read.csv('/Users/lipidong/work/WX/ENST_length.csv', stringsAsFactors = F)
+colnames(enst_len_raw) <- c('ensg', 'enst', 'length')
+enst_len <- group_by(enst_len_raw, ensg) %>% 
+  summarise(mRNA_max_length = max(length))
 
-# revise
-aa <- left_join(gene_degree, ensembl2genbank, by = c(ensembl = "ensembl_gene"))
 
-all_data <- sqldf("select  distinct ensembl2genbank.entrez, gene_degree.*, mRNA_hl.mRNA_halflife, pro_abun.pro_abundance, mRNA_abun_tissue.avg as mRNA_abundance,pars.PARS from gene_degree \n                  left join ensembl2genbank on gene_degree.ensembl = ensembl2genbank.ensembl_gene\n                  left join mRNA_hl on mRNA_hl.entrez = ensembl2genbank.entrez\n                  left join pro_abun on pro_abun.ensembl_gene= gene_degree.ensembl\n                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree.ensembl\n                  left join pars on pars.ensg = gene_degree.ensembl")
+all_data <- sqldf("select  distinct ensembl2genbank.entrez, gene_degree.ensembl, gene_degree.InDegree, enst_len.mRNA_max_length,mRNA_abun_tissue.mRNA_tissue_abun_avg,mRNA_abun_tissue.mRNA_tissue_abun_std, mRNA_hl.mRNA_halflife, pro_abun.pro_abundance,pro_hl.pro_turnover,  pars.PARS from gene_degree                  left join ensembl2genbank on gene_degree.ensembl = ensembl2genbank.ensembl_gene    left join ensembl on ensembl.entrez=ensembl2genbank.entrez                 left join mRNA_hl on mRNA_hl.entrez = ensembl2genbank.entrez                  left join pro_abun on pro_abun.ensembl_gene= gene_degree.ensembl  left join pro_hl on pro_hl.gene_id = ensembl.entrez                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree.ensembl\n                  left join pars on pars.ensg = gene_degree.ensembl     left join enst_len on enst_len.ensg = gene_degree.ensembl")
+
+all_data <- mutate(all_data, indegree_mRNA_length =InDegree/ mRNA_max_length) %>% 
+  select(c(1:4,11,5:10))
+
+
+# add 
+all_data <- all_data_1
+colnum <- 15
+corr <- matrix(NA, colnum-2, colnum-2)
+colnames(corr) <- colnames(all_data[,3:colnum])
+rownames(corr) <- colnames(all_data[,3:colnum])
+sapply(1: (colnum-2), function(ii){
+  sapply(1: (colnum-2), function(jj){
+    print(ii)
+    print(jj)
+    df <- data.frame(all_data[,ii+2],all_data[,jj+2]) 
+    df <- na.omit(df)
+    corr[ii,jj] <<-  cor.test(df[,1], df[, 2], method = 'spearman')$estimate
+    # cor.test(all_data[,ii+2],log2(all_data[,jj+2]), method = 'spearman')$estimate
+    
+    
+  })
+})
 
 all_data_1 <- sqldf("select all_data.*, NR_hl.RPKM as NR_RPKM, NR_hl.hl as NR_halflife, genbank_hl.RPKM as genbank_RPKM, genbank_hl.hl as genbank_halflife from all_data left join NR_hl on all_data.entrez = NR_hl.gene_id left join genbank_hl on genbank_hl.ensembl_gene = all_data.ensembl")
 
+# all_data <- select(all_data_1, c(-6:-10,-12:-15))
+  
+  
+  
 save.image("./data/tidy.rdata")
-write.csv(all_data, file = "./data/Intergenic_ncRNA.csv")
-
+write.csv(all_data, file = "./data/Homo_result_0402/Overlapping_ncRNA_result.csv")
+write.csv(corr,file = './data/Homo_result_0402/Overlapping_ncRNA_correlation.csv')
 
 
  

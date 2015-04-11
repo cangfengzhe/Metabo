@@ -1,4 +1,5 @@
-# data from GSE50676, calulate the PARS score
+# data from GSE50676,human, calulate the PARS score
+# method from nature
 library(dplyr)
 library(sqldf)
 V1 <- read.delim("/Users/lipidong/work/protein bundunce/data/PARS_GEO_Data/GSM1226162_norm.GM12892_V1.tab", 

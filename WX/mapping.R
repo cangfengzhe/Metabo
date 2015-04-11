@@ -25,6 +25,7 @@ colnames(ensembl2genbank) <- c("ensembl_id", "entrez_id", "genbank_acc")
 mRNA2ensembl <- sqldf("select * from mRNA_hl left join ensembl2genbank on mRNA_hl.Accession = ensembl2genbank.genbank_acc")
 
 all_data <- sqldf("select mircode.*, mRNA2ensembl.* from  mircode left join mRNA2ensembl on  mRNA2ensembl.ensembl_id = mircode.ensembl  ")
+
 # union select mircode.*, mRNA2ensembl.* from mRNA2ensembl left
 # join mircode on mRNA2ensembl.ensembl_id = mircode.ensembl
 all_data <- unique(all_data)
