@@ -2,12 +2,12 @@ extron <- read.csv('./raw_data/extron.txt', stringsAsFactors = F)
 colnames(extron) <- c('gene', 'transcript', 'tran_start', 'tran_end', 'entron_start', 'entron_end')
 nrow(unique(extron))
 # 减去转录子中外显子等于转录子的
-intron <- setdiff(extron, filter(extron, tran_start == entron_start & tran_end == entron_end))
+intron <- dplyr::setdiff(extron, filter(extron, tran_start == entron_start & tran_end == entron_end))
 
 # 经过检查 一共有396个基因，都是内含子位于外显子之中
 # 检查的方法为转录子起始位点与外显子起始位点相同的基因396个
 # 转录子终止位点与外显子终止位点相同的基因396个
-filter(intron, tran_end == entron_end) %>% View()
+filter(intron, tran_end == entron_end) %>% 
   select(1) %>% 
   distinct() %>% nrow()
 
@@ -34,11 +34,33 @@ intron_df[,2] <- as.numeric(intron_df[, 2])
 
 intron_out <- group_by(intron_df, V1) %>% 
   summarise(count = n(), len_sum=sum(V2))
-# join to the all_data
+# get the intron sequence ----
+
+# 得到染色体
+chrome <- read_csv('./raw_data/yeast_transcript.csv') %>%  
+  select(1:2)
+colnames(chrome) <- c('name', 'chrome')
+# intron_chrome <-  dplyr::left_join(intron_df, chrome, by = c('V1' = 'name'))
+intron_chrome <- sqldf('select distinct intron_df.*, roman2ala.num as chrome from intron_df left join chrome on intron_df.V1 = chrome.name left join roman2ala on chrome.chrome = roman2ala.chrome')
+
+intron_chrome <- na.omit(intron_chrome)
+
+# add intron sequence from the Genome ----
+intron_chrome$seq <- sapply(1: nrow(intron_chrome), function(ii){
+  print(ii)
+  extract_seq(intron_chrome[ii,3], intron_chrome[ii,4], intron_chrome[ii,5])
+})
+
+
+# join to the all_data ----
 all_data <- left_join(all_data, intron_out, by = c('sys_name' = 'V1'))
 
 
 filter(all_data, is.na(count) == T) %>% select(RNA_pol_density, len_sum) %>%   na.omit() %>%  colMeans(na.rm = T)
+
+
+
+
 
 # 计算差异
 intron_diff <- data.frame()

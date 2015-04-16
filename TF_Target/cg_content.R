@@ -12,7 +12,7 @@ cds <- filter(cds, V1 != 'sequence unavailable') %>%
   dplyr::rename(name = name_1, length = name_2, seq = V1)
 
 
-# calculate the GC content
+# calculate the GC content----
 cds$name <- as.character(cds$name)
 cds$seq <- as.character(cds$seq)
 cds$gc <- sapply(cds$seq, function(x){
@@ -77,18 +77,102 @@ View(roman2ala)
 
 transcript <- transcript %>% 
   left_join(roman2ala, by = 'chrome')
-
+#### add the sequence ----
 transcript$seq <- sapply(1: nrow(transcript), function(ii){
   print(ii)
   extract_seq(transcript[ii,3], transcript[ii,4], transcript[ii,5])
 })
 
 transcript <- mutate(transcript, len = tran_end-tran_start+1, transcript_gc)
-
+transcript <- unique(transcript)
 transcript_out <- transcript[,c(2, 7, 6)]
-transcript_out <- mutate
-utr3 <- read_csv("./data/utr3_pos.csv", col_names = F)
-utr5 <- read_csv("./data/utr5_pos.csv", col_names = F) 
-View(utr3)
+# 出现问题：部分NCBI序列与PARS提供的序列相反
+# 解决：将NCBI transcript 与 PARS数据（均取前10个，首尾比对）
+utr3 <- read_csv("./data/utr3_pos.csv", col_names = F) %>% 
+  select(1,5)
+utr5 <- read_csv("./data/utr5_pos.csv", col_names = F) %>% 
+  select(1,5)
+cds <- read_csv('./data/cds_pos.csv', col_names = F) %>% 
+  select(1,5)
+transcript_1 <- transcript_out %>% 
+  left_join(cds, by = c('name' = 'X1')) %>% 
+  rename_('cds' = 'X5')%>% 
+  left_join(utr5, by = c('name' = 'X1')) %>% 
+  rename_('utr5' = 'X5') %>% 
+  left_join(utr3, by = c('name' = 'X1')) %>% 
+  rename_('utr3' = 'X5') %>% 
+  mutate(seq = tolower(seq), cds = tolower(cds), utr5 = tolower(utr5), utr3 = tolower(utr3))
+ 
+
+all_seq <- sapply(1:nrow(transcript_1), function(ii){
+  print(ii)
+  seq <- transcript_1[ii, 3] %>% as.character()
+  cds <- transcript_1[ii, 4] %>% as.character()
+  utr5 <- transcript_1[ii, 5] %>% as.character()
+  utr3 <- transcript_1[ii, 6] %>% as.character()
+  if(is.na(cds) == F){
+    out <- 'error'
+    y <- seq %>% substr(1,10) == cds %>% substr(1,10)
+    
+    n <- seq %>% substr(1,10)  == cds %>% DNAString() %>% reverseComplement() %>% substr(1,10) %>% as.character() %>% tolower()
+    
+    if(y & !n){
+      out <- paste(c( utr5, seq, utr3), collapse = '')
+      out <- gsub('NA', '', out)
+    }
+    if(!y & n){
+      out <- paste(c(utr5, seq %>% DNAString() %>% reverseComplement() %>% as.character() %>%  tolower(), utr3), collapse = '')
+    out <- gsub('NA', '', out)
+    
+    }
+    out
+  }else{
+    out <- seq
+  }
+})
+
+transcript_1$transcript_seq <- all_seq
+transcript_2 <- transcript_1 %>% filter(transcript_seq != 'error')
+
+# read the exon sequence
+cdna_seq_raw <- read.fasta('./raw_data/cdna_seq.fasta', as.string = T) %>% do.call('rbind', .)
+
+cdna_seq <- data.frame(name = cdna_seq_raw %>% rownames(), cdna_seq = cdna_seq_raw[,1], stringsAsFactors = F )
+
+transcript_1 <- transcript_2 %>% left_join(cdna_seq, by = 'name')
+
+all_seq <- sapply(1:nrow(transcript_1), function(ii){
+  print(ii)
+  seq <- transcript_1[ii, 8] %>% as.character()
+  cds <- transcript_1[ii, 4] %>% as.character()
+  utr5 <- transcript_1[ii, 5] %>% as.character()
+  utr3 <- transcript_1[ii, 6] %>% as.character()
+  if(is.na(cds) == F){
+    out <- 'error'
+    y <- seq %>% substr(1,10) == cds %>% substr(1,10)
+    
+    n <- seq %>% substr(1,10)  == cds %>% DNAString() %>% reverseComplement() %>% substr(1,10) %>% as.character() %>% tolower()
+    
+    if(y & !n){
+      out <- paste(c( utr5, seq, utr3), collapse = '')
+      out <- gsub('NA', '', out)
+    }
+    if(!y & n){
+      out <- paste(c(utr5, seq %>% DNAString() %>% reverseComplement() %>% as.character() %>%  tolower(), utr3), collapse = '')
+      out <- gsub('NA', '', out)
+      
+    }
+    out
+  }else{
+    out <- seq
+  }
+})
+
+transcript_1$mrna_seq <- all_seq
+transcript <- transcript_1 %>% 
+  filter(mrna_seq != 'error') %>%
+  select(c(1, 7, 9)) %>% 
+  distinct()
+
 
 
