@@ -19,7 +19,7 @@ mRNA_hl <- read.csv("/Users/lipidong/work/WX/human mRNA half life data.csv",
 # from mRNA_hl left join genbank2entrez on mRNA_hl.accession=
 # genbank2entrez.accession')
 
-ensembl2genbank <- read.csv("/Users/lipidong/work/WX/ensemble2genbank.txt", 
+ensembl2genbank <- read.csv("/Users/lipidong/baiduyun/work/WX/ensemble2genbank.txt", 
     stringsAsFactors = F)
 colnames(ensembl2genbank) <- c("ensembl_id", "entrez_id", "genbank_acc")
 mRNA2ensembl <- sqldf("select * from mRNA_hl left join ensembl2genbank on mRNA_hl.Accession = ensembl2genbank.genbank_acc")

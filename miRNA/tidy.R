@@ -1,21 +1,22 @@
 # read the data
-gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_3pUTR.csv", 
+gene_degree <- read.csv("/Users/lipidong/baiduyun/work/WX/miRNA_network_analysis/use/gene_indegree_3pUTR.csv", 
     stringsAsFactors = F)
 
-gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_5pUTR.csv", 
+gene_degree <- read.csv("/Users/lipidong/baiduyun/work/WX/miRNA_network_analysis/use/gene_indegree_5pUTR.csv", 
     stringsAsFactors = F)
 
-gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_CDS.csv", 
-    stringsAsFactors = F)
-gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_Intergenic_ncRNA.csv", 
+gene_degree <- read.csv("/Users/lipidong/baiduyun/work/WX/miRNA_network_analysis/use/gene_indegree_CDS.csv", 
     stringsAsFactors = F)
 
-gene_degree <- read.csv("/Users/lipidong/work/WX/miRNA_network_analysis/use/gene_indegree_Overlapping_ncRNA.csv", 
-                        stringsAsFactors = F)
+# 
+# gene_degree <- read.csv("/Users/lipidong/baiduyun/work/WX/miRNA_network_analysis/use/gene_indegree_Intergenic_ncRNA.csv", 
+#     stringsAsFactors = F)
+# 
+# gene_degree <- read.csv("/Users/lipidong/baiduyun/work/WX/miRNA_network_analysis/use/gene_indegree_Overlapping_ncRNA.csv", 
+#                         stringsAsFactors = F)
 
 
-gene_degree$ensembl <- do.call("rbind", strsplit(gene_degree[, 
-    1], split = "\\."))[, 1]
+gene_degree$ensembl <- do.call("rbind", strsplit(gene_degree[, 1], split = "\\."))[, 1]
 gene_degree <- gene_degree[, c(3, 1, 2)]
 
 
@@ -25,7 +26,7 @@ ensembl <- strsplit(mircode[, 1], "\\.")
 mircode$ensembl <- do.call("rbind", ensembl)[, 1]
 mircode <- mircode[, c(13, 4)]
 
-ensembl2genbank <- read.csv("/Users/lipidong/work/WX/ensembl_protein_gene.csv", 
+ensembl2genbank <- read.csv("/Users/lipidong/baiduyun/work/WX/ensembl_protein_gene.csv", 
     stringsAsFactors = F)
 colnames(ensembl2genbank) <- c("entrez", "ensembl_pro", "ensembl_gene", 
     "genbank")
@@ -129,16 +130,44 @@ colnames(enst_len_raw) <- c('ensg', 'enst', 'length')
 enst_len <- group_by(enst_len_raw, ensg) %>% 
   summarise(mRNA_max_length = max(length))
 
+# cg content ----
+# data from ensembl
+cg_raw <- read_csv('./raw_data/cg_content.txt') %>% na.omit()
+colnames(cg_raw) <- c('ensg', 'enst', 'cg')
+cg <- cg_raw %>%  group_by(ensg) %>% 
+  summarise( cg = mean(cg, na.rm = T))
 
-all_data <- sqldf("select  distinct ensembl2genbank.entrez, gene_degree.ensembl, gene_degree.InDegree, enst_len.mRNA_max_length,mRNA_abun_tissue.mRNA_tissue_abun_avg,mRNA_abun_tissue.mRNA_tissue_abun_std, mRNA_hl.mRNA_halflife, pro_abun.pro_abundance,pro_hl.pro_turnover,  pars.PARS from gene_degree                  left join ensembl2genbank on gene_degree.ensembl = ensembl2genbank.ensembl_gene    left join ensembl on ensembl.entrez=ensembl2genbank.entrez                 left join mRNA_hl on mRNA_hl.entrez = ensembl2genbank.entrez                  left join pro_abun on pro_abun.ensembl_gene= gene_degree.ensembl  left join pro_hl on pro_hl.gene_id = ensembl.entrez                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree.ensembl\n                  left join pars on pars.ensg = gene_degree.ensembl     left join enst_len on enst_len.ensg = gene_degree.ensembl")
+# dn_ds ----
+
+dn_ds_raw <- read_csv('./raw_data/dn_ds.txt')
+colnames(dn_ds_raw) <- c('ensg', 'dn1','ds1', 'dn2', 'ds2', 'dn3', 'ds3')
+
+dn_ds_1 <-   dn_ds_raw %>% mutate(dn_ds1 = (dn1/ds1), dn_ds2 = dn2/ds2, dn_ds3 = dn3/ds3)
+
+dn_ds_1[which(is.infinite(dn_ds_1$dn_ds1) == T), 8] <- NA
+dn_ds_1[which(is.infinite(dn_ds_1$dn_ds2) == T), 9] <- NA
+dn_ds_1[which(is.infinite(dn_ds_1$dn_ds3) == T), 10] <- NA
+
+dn_ds_1$dn_ds <- sapply(1: nrow(dn_ds_1), function(ii){
+  mean(c(dn_ds_1$dn_ds1[ii], dn_ds_1$dn_ds2[ii], dn_ds_1$dn_ds3[ii]), na.rm = T)
+})
+
+dn_ds <- dn_ds_1 %>% select(ensg, dn_ds) %>% 
+  group_by(ensg) %>% 
+  summarise(dn_ds = mean(dn_ds, na.rm = T))
+
+
+
+all_data <- sqldf("select  distinct ensembl2genbank.entrez, gene_degree.ensembl, gene_degree.InDegree, enst_len.mRNA_max_length,mRNA_abun_tissue.mRNA_tissue_abun_avg,mRNA_abun_tissue.mRNA_tissue_abun_std, mRNA_hl.mRNA_halflife, pro_abun.pro_abundance,pro_hl.pro_turnover,  pars.PARS  ,cg.cg, dn_ds.dn_ds  from gene_degree               left join ensembl2genbank on gene_degree.ensembl = ensembl2genbank.ensembl_gene    left join ensembl on ensembl.entrez=ensembl2genbank.entrez                 left join mRNA_hl on mRNA_hl.entrez = ensembl2genbank.entrez                  left join pro_abun on pro_abun.ensembl_gene= gene_degree.ensembl  left join pro_hl on pro_hl.gene_id = ensembl.entrez                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree.ensembl\n                  left join pars on pars.ensg = gene_degree.ensembl     left join enst_len on enst_len.ensg = gene_degree.ensembl left join dn_ds on gene_degree.ensembl = dn_ds.ensg 
+                  left join cg on gene_degree.ensembl = cg.ensg")
 
 all_data <- mutate(all_data, indegree_mRNA_length =InDegree/ mRNA_max_length) %>% 
   select(c(1:4,11,5:10))
 
 
 # add 
-all_data <- all_data_1
-colnum <- 15
+all_data <- all_data1
+colnum <- ncol(all_data)
 corr <- matrix(NA, colnum-2, colnum-2)
 colnames(corr) <- colnames(all_data[,3:colnum])
 rownames(corr) <- colnames(all_data[,3:colnum])
@@ -154,6 +183,8 @@ sapply(1: (colnum-2), function(ii){
     
   })
 })
+corr_cds <- corr
+# process the lncRNA
 
 all_data_1 <- sqldf("select all_data.*, NR_hl.RPKM as NR_RPKM, NR_hl.hl as NR_halflife, genbank_hl.RPKM as genbank_RPKM, genbank_hl.hl as genbank_halflife from all_data left join NR_hl on all_data.entrez = NR_hl.gene_id left join genbank_hl on genbank_hl.ensembl_gene = all_data.ensembl")
 
