@@ -189,6 +189,17 @@ dn_ds_1$dn_ds <- sapply(1: nrow(dn_ds_1), function(ii){
 dn_ds <- dn_ds_1 %>% select(ensg, dn_ds) %>% 
   group_by(ensg) %>% 
   summarise(dn_ds = mean(dn_ds, na.rm = T))
+# essential ----
+essen_gene <- read_tsv('./raw_data/gene_essentiality.txt') %>% 
+  filter(grepl('Homo sapiens',sciName) == T) %>% 
+  select(locus, essential) %>% 
+  mutate(bool = ifelse(essential=='Y', 1, 0))  %>% 
+  group_by(locus) %>% 
+  summarise(mean = mean(bool)) %>% 
+  filter(mean >0.5) %>% 
+  rename(ensg = locus, essen = mean) %>% 
+  mutate(essen = 1)
+
 
 # main ----
 
@@ -230,52 +241,129 @@ ensg_mapping <- enst_mapping %>% group_by(ensg) %>%
             pro_turnover = mean(pro_turnover, na.rm = T),
             cg = mean(cg, na.rm = T),
             dn_ds = mean(dn_ds, na.rm = T),
-            intron_count = mean(intron_count, na.rm = T))
+            intron_count = sum(intron_count, na.rm = T)) 
 
 View(ensg_mapping)
-cor(ensg_mapping[,-c(1)], use = 'na.or.complete', method = 'spearman') %>% View()
+cor_ensg <- cor(ensg_mapping[,-c(1)], use = 'na.or.complete', method = 'spearman') 
 
- save.image('./data/enst.rdata')
-cor(ensg_mapping$cds_degree, ensg_mapping$pars_mbe, use = 'na.or.complete', method = 'spearman')
-# 
-# 
-# all_data <- sqldf("select  distinct ensembl2genbank.entrez, gene_degree.ensembl, gene_degree.InDegree, enst_len.mRNA_max_length,mRNA_abun_tissue.mRNA_tissue_abun_avg,mRNA_abun_tissue.mRNA_tissue_abun_std, mRNA_hl.mRNA_halflife, pro_abun.pro_abundance,pro_hl.pro_turnover,  pars.PARS  ,cg.cg, dn_ds.dn_ds  from gene_degree               left join ensembl2genbank on gene_degree.ensembl = ensembl2genbank.ensembl_gene    left join ensembl on ensembl.entrez=ensembl2genbank.entrez                 left join mRNA_hl on mRNA_hl.entrez = ensembl2genbank.entrez                  left join pro_abun on pro_abun.ensembl_gene= gene_degree.ensembl  left join pro_hl on pro_hl.gene_id = ensembl.entrez                  left join mRNA_abun_tissue on mRNA_abun_tissue.Gene = gene_degree.ensembl\n                  left join pars on pars.ensg = gene_degree.ensembl     left join enst_len on enst_len.ensg = gene_degree.ensembl left join dn_ds on gene_degree.ensembl = dn_ds.ensg 
-#   left join cg on gene_degree.ensembl = cg.ensg")
+# essential gene ----
+ensg_essen <- essen_gene %>% left_join(ensg_mapping, by = c('ensg' = 'ensg'))
+cor_ensg_essen <- cor(ensg_essen[,-c(1)], use = 'na.or.complete', method = 'spearman') 
 
-# all_data <- mutate(all_data, indegree_mRNA_length =InDegree/ mRNA_max_length) %>% 
-#   select(c(1:4,11,5:10))
+# house keeping gene -----
+house_keep <- read_csv('./raw_data/house_keeping.csv') %>% 
+  left_join(ensg_enst_entrez, by = c('ENTREZ_GENE_ID' = 'entrez')) %>% 
+  select(ENTREZ_GENE_ID, ensg) %>% 
+  rename(entrez = ENTREZ_GENE_ID) %>% 
+  distinct() %>% 
+  filter( grepl('ENSG', ensg) == T) %>% 
+  select(ensg) %>% 
+  mutate(house_keep = 1)
 
 
-# add 
-all_data <- all_data1
-colnum <- ncol(all_data)
-corr <- matrix(NA, colnum-2, colnum-2)
-colnames(corr) <- colnames(all_data[,3:colnum])
-rownames(corr) <- colnames(all_data[,3:colnum])
-sapply(1: (colnum-2), function(ii){
-  sapply(1: (colnum-2), function(jj){
-    print(ii)
-    print(jj)
-    df <- data.frame(all_data[,ii+2],all_data[,jj+2]) 
-    df <- na.omit(df)
-    corr[ii,jj] <<-  cor.test(df[,1], df[, 2], method = 'spearman')$estimate
-    # cor.test(all_data[,ii+2],log2(all_data[,jj+2]), method = 'spearman')$estimate
-    
-    
-  })
+# calculate the difference between essential gene and unessential
+ensg_mapping <- ensg_mapping %>% left_join(essen_gene, by = 'ensg') %>% left_join(house_keep, by = 'ensg')
+
+View(ensg_mapping)
+ensg_mapping[which(is.na(ensg_mapping$essen == T)),
+'essen'] <- 0
+
+ensg_mapping[which(is.na(ensg_mapping$house_keep == T)), 'house_keep'] <- 0
+
+ensg_mapping <- as.data.frame(ensg_mapping)
+
+ensg_mapping$essen <- ensg_mapping$essen %>% as.factor() 
+ensg_mapping$house_keep <- ensg_mapping$house_keep %>% as.factor() 
+
+
+
+ensg_diff <- ldply( 2: (length(ensg_mapping) - 2), function(ii){
+  
+  
+  essen_pval <- wilcox.test(ensg_mapping[, ii] ~ ensg_mapping$essen)$p.value
+  essen_count <- ensg_mapping %>% filter(essen == 1) %>% .[, ii] %>% na.omit() %>% length()
+  unessen_count <- ensg_mapping %>% filter(essen == 0) %>% .[, ii] %>% na.omit() %>% length()
+  
+  essen_median <- median(ensg_mapping %>% filter(essen == 1) %>% .[, ii], na.rm = T)
+  unessen_median <- median(ensg_mapping %>% filter(essen == 0) %>% .[, ii], na.rm = T)
+  
+  house_keep_pval <- wilcox.test(ensg_mapping[, ii]~ ensg_mapping$house_keep) $p.value
+  
+  house_keep_count <- ensg_mapping %>% filter(house_keep == 1) %>% .[, ii] %>% na.omit() %>% length()
+  unhouse_keep_count <- ensg_mapping %>% filter(house_keep == 0) %>% .[, ii] %>% na.omit() %>% length()
+  
+  house_keep_median <- median(ensg_mapping %>% filter(house_keep == 1) %>% .[, ii], na.rm = T)
+  unhouse_keep_median <- median(ensg_mapping %>% filter(house_keep == 0) %>% .[, ii], na.rm = T)
+  
+  c(colnames(ensg_mapping)[ii], essen_pval,essen_count, unessen_count, essen_median, unessen_median, house_keep_pval, house_keep_count, unhouse_keep_count, house_keep_median, unhouse_keep_median)
 })
-corr_cds <- corr
-# process the lncRNA
 
-# all_data_1 <- sqldf("select all_data.*, NR_hl.RPKM as NR_RPKM, NR_hl.hl as NR_halflife, genbank_hl.RPKM as genbank_RPKM, genbank_hl.hl as genbank_halflife from all_data left join NR_hl on all_data.entrez = NR_hl.gene_id left join genbank_hl on genbank_hl.ensembl_gene = all_data.ensembl")
+colnames(ensg_diff) <- c('var_name', 'essential_pvalue','essential_count', 'unessential_count', 'essential_median', 'unessential_median', 'house_keep_pvalue', 'house_keep_count', 'unhouse_keep_count', 'house_keep_median', 'unhouse_keep_median')
 
-# all_data <- select(all_data_1, c(-6:-10,-12:-15))
+write.csv(ensg_diff, file = './data/ensg_diff_essential_house_keep0428.csv')
 
 
 
-# save.image("./data/tidy.rdata")
-# write.csv(all_data, file = "./data/Homo_result_0402/Overlapping_ncRNA_result.csv")
-# write.csv(corr,file = './data/Homo_result_0402/Overlapping_ncRNA_correlation.csv')
+
+
+
+cor_ensg_house <- cor(house_keep_ensg[,-c(1)], use = 'na.or.complete', method = 'spearman') 
+
+
+# degree bin
+library(ggplot2)
+ggplot(ensg_mapping, aes(x = utr5_degree)) +
+  geom_bar(na.rm = T)
+  
+geom_density(na.rm = T)
+  
+filter(ensg_mapping, utr5_degree ==0) %>% nrow()
+
+table(ensg_mapping[,c(2)]) %>% View
+
+
+View(cor_ensg_house)
+cor_ensg_house %>% View
+View(cor_ensg_house)
+diff <- (cor_ensg_house-cor_ensg) 
+library(reshape2)
+cor_1 <- melt(cor_ensg)
+cor_2 <- melt(cor_ensg_house)
+cor_3 <- melt(diff)
+
+cor_bind <- left_join(cor_1, cor_2, by = c('Var1', 'Var2')) %>% rename(ensg = value.x, house = value.y) %>% 
+  mutate(diff = ensg - house)
+
+cor_bind$Var1 <- factor(cor_bind$Var1, levels = unique(cor_bind$Var1))
+cor_bind$Var2 <- factor(cor_bind$Var2, levels = unique(cor_bind$Var1))
+cor_bind$name_diff <- as.numeric(cor_bind$Var1) - as.numeric(cor_bind$Var2)
+
+cor_bind$Var1 <- as.character(cor_bind$Var1)
+cor_bind$Var2 <- as.character(cor_bind$Var2)
+
+cor_bind <- cor_bind %>% 
+  filter(name_diff>0 & (diff > 0.1 | diff< (-0.1)))
+
+
+cor_bind$txt_bind <- paste(cor_bind$Var1, cor_bind$Var2, sep = '.')
+
+library(ggplot2)
+g <- ggplot(cor_bind, aes(x=txt_bind, y = ensg)) +
+  geom_bar(stat = 'identity')
+g
+
+View(cor_bind)
+
+
+save(cor_ensg_house, cor_ensg, diff, file = './data/xinyu.rdata')
+View(cor_ensg)
+
+
+
+save.image('./data/enst.rdata')
+
+ensg_essen
+
 
 
 

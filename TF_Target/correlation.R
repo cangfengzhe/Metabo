@@ -33,6 +33,5 @@ save.image('./data/data.rdata')
 
 write.csv(data, file = './data/yeast_intron_result_0410.csv', row.names = F)
 write.csv(corr, file = './data/yeast_intron_corr_0410.csv')
-View(corr)
 
 

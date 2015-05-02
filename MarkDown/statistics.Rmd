@@ -1,0 +1,60 @@
+---
+title: "R语言与统计笔记"
+author: "By Pidong Li  2014-12-22 "
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+layout: post
+category: [Statistics]
+description: "生物统计 R语言 笔记 "
+avatarimg: "http://cangfengzhe.github.io/img/"
+tags : [ R ,函数, 统计]
+---
+## 正态性检验
+
+### Shapiro-Wilk Normality Test
+
+样本量在3-5000时使用
+`shapiro.test(x)`
+x a numeric vector of data values. Missing values are allowed, but the number of non-missing values must be between 3 and 5000.
+```{r, echo=FALSE}
+example("shapiro.test")
+```
+
+### Kolmogorov-Smirnov Tests
+
+统计量大于5000时采用
+```r
+ks.test(x, y, ...,
+        alternative = c("two.sided", "less", "greater"),
+        exact = NULL)
+```
+此函数用于检测x是否与y为相同分布，可以把y定义为正态分布来检测x时候为正态分布。
+x表示待检测的样本数据，必须为数值型向量
+y可以是数值型向量，也可以是字符型 分布的累计分布函数pnorm，pgamma
+```{r}
+example("ks.test")
+```
+
+## 两样本检验
+### 参数检验
+
+### 当样本符合正态分布时，采用参数检验。
+
+
+
+
+
+####  未完待续
+### compile tool
+```r
+library(knitr)
+knit('/Users/lipidong/baiduyun/work/RFile/MarkDown/statistics.Rmd', output = '~/learn/blog/_posts/2015-05-1-statistics.md')
+```
+
+
+
+
