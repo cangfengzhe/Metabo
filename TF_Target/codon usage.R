@@ -74,9 +74,7 @@ cor(yeast_data1$mRNA_half_life2015, yeast_data1$CAI, use = 'na.or.complete', met
 
 write_csv(yeast_data1, './data/yeast_data_halflife_2015.csv')
 
-cor(yeast_data[3:31], use = )
-View(yeast_data)
-colnames(yeast_data)
+
 #2015 half_life correlation
 
 yeast_cor_hl_2015 <- matrix(NA,98,3)
@@ -89,10 +87,19 @@ ldply(3:98, function(ii){
  yeast_cor_hl_2015[ii,3] <<- cor_value2
  
 })
+
 colnames(yeast_cor_hl_2015) <- c('cor', 'half_life_2015', 'half_life_2014')
 yeast_cor_hl_2015 <- yeast_cor_hl_2015 %>% na.omit()
 write_csv(yeast_cor_hl_2015 %>% as.data.frame(), './data/cor_halflife_2015.csv')
 yeast_cor_hl_2015 %>% class
-
+View(yeast_cor_hl_2015)
 View(cor)
 yeast_cor %>% View
+
+aa <- cor(yeast_data[,3:34],use = 'pairwise.complete.obs', method = 'spearman' )
+
+View(aa)
+View(yeast_data)
+colnames(yeast_data)
+
+

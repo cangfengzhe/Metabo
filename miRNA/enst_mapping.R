@@ -243,8 +243,8 @@ ensg_mapping <- enst_mapping %>% group_by(ensg) %>%
             dn_ds = mean(dn_ds, na.rm = T),
             intron_count = sum(intron_count, na.rm = T)) 
 
-View(ensg_mapping)
-cor_ensg <- cor(ensg_mapping[,-c(1)], use = 'na.or.complete', method = 'spearman') 
+
+
 
 # essential gene ----
 ensg_essen <- essen_gene %>% left_join(ensg_mapping, by = c('ensg' = 'ensg'))
