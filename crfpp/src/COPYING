@@ -1,0 +1,8 @@
+Pocket CRF is a modified version of CRF++
+Open Source License: LGPL (see the file LGPL) or the BSD License (see the file BSD).
+
+Example dataset including key, train, test, are all copied from CRF++ 2007-03-29 , and the template file: template is modified from CRF++
+
+CRF++ is copyrighted free software by Taku Kudo <taku@chasen.org>, and is released under any of the LGPL (see the file LGPL) or the BSD License (see the file BSD).
+
+http://sourceforge.net/projects/crfpp/

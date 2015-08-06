@@ -23,18 +23,31 @@ corr_f <- function(data, rmcol){
   })
    corr
 }
-corr <- 1
-bb <- ensg_mapping %>% na.omit()
-aa <- ensg_mapping[,-c(1,14,15)]
-View(aa)
-aa <- filter(aa, is.na(utr3_degree) ==F & is.na(utr5_degree) ==F & is.na(cds_degree) ==F)
-nrow(aa)
-df <- data.frame(ensg_mapping$utr5_degree, ensg_mapping$pro_abundance, ensg_mapping$utr3_degree) %>% na.omit()
-ensg_essen %>% View
-cor(house_keep_ensg[,-1], use = 'pairwise.complete.obs', method = 'sp') %>% View()
 
 
-house_keep_ensg %>% View
+cor1 <- corr_f(ensg_mapping3, c(1, 14, 15))
 
-
-pcor.test(df[,1],df[,2], df[,3], method = 'spearman')
+cor <- corr_f(pars_nona, c(1, 4, 15))
+library(corpcor)
+pcor <- cor2pcor(cor)
+colnames(pcor) <- colnames(cor)
+rownames(pcor) <- rownames(cor)
+View(pcor)
+# cor <- corr_f(ensg_mapping, c(1,13:15))
+# View(cor)
+# 
+# corr <- 1
+# bb <- ensg_mapping %>% na.omit()
+# aa <- ensg_mapping[,-c(1,14,15)]
+# View(aa)
+# aa <- filter(aa, is.na(utr3_degree) ==F & is.na(utr5_degree) ==F & is.na(cds_degree) ==F)
+# nrow(aa)
+# df <- data.frame(ensg_mapping$utr5_degree, ensg_mapping$pro_abundance, ensg_mapping$utr3_degree) %>% na.omit()
+# ensg_essen %>% View
+# cor(house_keep_ensg[,-1], use = 'pairwise.complete.obs', method = 'sp') %>% View()
+# 
+# 
+# house_keep_ensg %>% View
+# 
+# 
+# pcor.test(df[,1],df[,2], df[,3], method = 'spearman')

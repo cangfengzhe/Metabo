@@ -1,4 +1,5 @@
-# mapping all kind of data pars ---- SGD name ---- from SGD
+# mapping all kind of data pars ---- 
+#SGD name ---- from SGD
 # database
 SGD <- read.csv("/Users/lipidong/work/protein bundunce/data/sgd_gene_mapping.csv", 
     stringsAsFactors = F)
@@ -18,7 +19,8 @@ protein_abun <- protein_abun[, c(2, 3)]
 colnames(protein_abun)[1] <- "name"
 protein_abun_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, protein_abun.* from protein_abun left join SGD on protein_abun.name = SGD.sys_name or protein_abun.name=SGD.std_name")
 
-# mRNA fold free energy ---- from all sequence, which data from
+# mRNA fold free energy ---- 
+# from all sequence, which data from
 # http://genie.weizmann.ac.il/pubs/PARS10/, by using matlab
 # rnafold method
 mf_all_seq <- read.csv("/Users/lipidong/work/protein bundunce/data/mF_all_seq.csv", 
@@ -43,7 +45,8 @@ colnames(mRNA_hl)[1] <- "name"
 mRNA_hl_sgd <- sqldf("select SGD.sgd_id, SGD.sys_name, mRNA_hl.* from mRNA_hl left join SGD on mRNA_hl.name = SGD.sys_name or mRNA_hl.name=SGD.std_name")
 colnames(mRNA_hl_sgd)[4] <- "mRNA_halflife"
 
-# protein half lives ---- from Global Proteome Turnover
+# protein half lives ---- 
+# from Global Proteome Turnover
 # Analyses of the Yeasts S. cerevisiae and S. pombe
 protein_hl <- read.csv("/Users/lipidong/work/protein bundunce/data/protein_halflives.csv", 
     stringsAsFactors = F)
@@ -60,6 +63,7 @@ View(protein_hl_sgd)
 protein_hl_sgd01 <- group_by(protein_hl_sgd, sgd_id) %>% 
   summarise(hl_min = mean(hl_min))
 protein_hl_sgd <- protein_hl_sgd01
+
 # mRNA_abun ----
 # data from Protein abundances are more conserved than mRNA abundances across diverse taxa
 mRNA_abun <- read.csv('./raw_data/mRNA_abun.csv', stringsAsFactors = F)
@@ -69,12 +73,15 @@ mRNA_abun_sgd <- mutate(mRNA_abun, mRNA_abun_sum = (mRNA_abun_array+mRNA_abun_se
 
 
 
-# ppi ---- data from BIOGRID
+# ppi ---- 
+
+# data from BIOGRID
 ppi <- read.delim("/Users/lipidong/work/protein bundunce/data/PPI.txt", 
     stringsAsFactors = F)
 ppi <- ppi[, 6:7]
 
-# TF-target ---- data from YEASTRACT; http:// www.yeastract.com
+# TF-target ---- 
+#data from YEASTRACT; http:// www.yeastract.com
 tf_target <- read.csv("/Users/lipidong/work/protein bundunce/data/TF_target.csv", 
     stringsAsFactors = F)
 target_list <- as.data.frame(unique(tf_target[, 2]))
@@ -117,10 +124,12 @@ trans_rate <- read.csv('./raw_data/transcript_rate.csv', stringsAsFactors = F)
 # mapping over
 # essetial gene
 # system.time({
-# essential <-   read.delim('./raw_data/gene_essentiality.txt', stringsAsFactors = F) %>% 
-#   tbl_df() %>% 
-#   filter(sciName == 'Saccharomyces cerevisiae') %>% 
-#   select(locus, essential) %>% 
+essential <-   read.delim('./raw_data/gene_essentiality.txt', stringsAsFactors = F) %>% 
+filter(sciName == 'Saccharomyces cerevisiae' & essential == 'Y' & pubmedID == 0) %>% 
+  left_join(SGD, by=c('locus'='sys_name')) %>% 
+  select(sgd_id, locus, essential)
+  
+
 #   left_join(SGD, by=c('locus'='sys_name')) %>% 
 #   select(sgd_id,essential) %>% 
 #   distinct()

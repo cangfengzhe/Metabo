@@ -1,0 +1,136 @@
+---
+title: "Untitled"
+author: "Lipidong"
+date: "May 27, 2015"
+output: word_document
+---
+<style type="text/css">
+img {
+  
+  margin: 0 50px;
+}</style>
+## 利用PAML进行分子进化分析
+
+ 2013级 生物信息学专业 李丕栋 2013051589
+
+### 实验目的:
+
+1. 学会使用 PAML 软件中 codeml 程序进行正向选择检验
+
+2. 学会使用 PAML 软件中 codeml 程序进行正向选择位点检测
+
+### 实验内容:
+
+1、软件准备
+
+（1）操作系统 Mac OSX Yosemite 10.10.2
+
+（2）Mega 6.06（Mac OSX）http://www.megasoftware.net/megamac.php
+
+（3）PAML4.8（Mac OSX）http://abacus.gene.ucl.ac.uk/software/paml.
+html#download
+
+2、实验流程
+
+（1）序列准备
+
+在NCBI Nucleotide数据库（http://www.ncbi.nlm.nih.gov/nuccore/） 下载10个物种 （Homo sapiens， Rattus norvegicus，Felis catus， Pan troglodytes， Mesocricetus auratus， Orcinus orca， Octodon degus， Macaca nemestrina， Rhinopithecus roxellana， Eptesicus fuscus）
+（Homo sapiens， Rattus norvegicus，Felis catus， Pan troglodytes， Mesocricetus auratus， Orcinus orca， Octodon degus， Macaca nemestrina， Rhinopithecus roxellana， Eptesicus fuscus） 的P16（cyclin-dependent kinase inhibitor 2A）基因， 提取它们的CDS序列，保存为cds_seq.fasta.
+
+ <img src="/Users/lipidong/Desktop/result/seq_screenshot.png" width = "500" height = "300" alt="图片名称" align=center />
+
+(2) Mega 软件进行密码子比对，构建发育树
+
+a. 将上述10个物种的P16 CDS序列（cds_seq.fasta）导入Mega(软件操作 )。
+
+<img src="/Users/lipidong/Desktop/result/mega_input_screenshot.png" width = "500" height = "300" alt="Mega 序列导入" align=center />
+
+b. 删除各物种序列最后的终止密码子，进行密码子比对（软件操作 Alignment -> align by clustalW(codons)）,弹出对话框采用默认设置。处理完成后，截齐两端含有---的序列。
+
+c. 构建系统发育树（软件操作 Data -> Phylogenetic Analysis）,处理完成后点击另外一个对话框（Phylogeny -> construct/test neibor joining Tree...）,随后采用默认参数，得到进化树。
+
+<img src="/Users/lipidong/Desktop/result/tree_screenshot.png" width = "500" height = "300" alt="Mega 序列导入" align=center />
+
+d. 将进化树文件保存（File -> Export Current Tree(Newick)）为 tree.nwk
+
+e. 保存密码子比对文件，点击另外一个对话框的TA（如下图）
+
+<img src="/Users/lipidong/Desktop/result/kuang_screenshot.png" width = "500" height = "300" alt="Mega 序列导入" align=center />
+
+得到下图
+
+<img src="/Users/lipidong/Desktop/result/codon_screenshot.png" width = "500" height = "200" alt="密码子序列导出" align=center />
+
+data -> export data, format 选择 fasta 导出密码子比对文件 codon.fas （如下图）
+
+<img src="/Users/lipidong/Desktop/result/codon_file_screenshot.png" width = "500" height = "150" alt="密码子比对文件" align=center />
+
+(3)PAML软件进行分子进化分析
+
+a. 将codeml, codeml.ctl, codon.fas, tree.nwk 4个文件放在result文件夹下, 修改 codeml.ctl文件
+
+>  seqfile = ./codon.fas <br/>
+   treefile = ./tree.nwk
+
+b. 计算dn/ds
+
+修改 codeml.ctl文件
+> outfile = model0NS0 <br/>
+  NSsites = 0 
+
+<img src="/Users/lipidong/Desktop/result/ctl1_screenshot.png" width = "500" height = "300" alt="密码子比对文件" align=center />
+
+运行命令行
+> ./codeml
+
+<img src="/Users/lipidong/Desktop/result/terminal_screenshot.png" width = "500" height = "300" alt="codeml" align=center />
+
+结果：
+
+<img src="/Users/lipidong/Desktop/result/m0result_screenshot.png" width = "300" height = "100" alt="dnds_result" align=center />
+ 
+即：转换颠换比值 kappa (ts/tv) =  4.17688
+
+omega (dN/dS) =  0.13664， 结果小于1，说明p16基因为负向选择。
+
+d. 模型参数设置及正向选择位点分析
+
+修改 codeml.ctl 文件
+
+> outfile = model0NS031278 <br/>
+  NSsites = 0 3 1 2 7 8 <br/>
+  其他设置不变
+
+运行 ... ... ...
+
+结果
+
+<img src="/Users/lipidong/Desktop/result/m0.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+<img src="/Users/lipidong/Desktop/result/m3.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+<img src="/Users/lipidong/Desktop/result/m1.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+<img src="/Users/lipidong/Desktop/result/m2.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+<img src="/Users/lipidong/Desktop/result/m7.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+<img src="/Users/lipidong/Desktop/result/m8.png" width = "500" height = "100" alt="dnds_result" align=center />
+
+整理，并计算卡方分布的单尾概率。
+
+<img src="/Users/lipidong/Desktop/result/excel.png" width = "500" height = "200" alt="dnds_result" align=center />
+
+结果分析：
+
+> 根据 3 组模型的 lnL 值可以对蛋白受到的选择压进行判断。model0 和 model3 比较，P-value<0.01(阈值定为0.01) 可以判断蛋白序列各个密码子受到的选择压不同；
+model1 和 model2,P-value >0.01; model7 和 model8, P-value>0.01 说明没有明显的正向选择位点出现。
+
+同时，model2和model8的结果中也没有标*的位点。再次证明， 10个物种的p16基因没有正向选择位点出现。
+
+<img src="/Users/lipidong/Desktop/result/m2_result.png" width = "500" height = "120" alt="dnds_result" align="center" />
+
+
+<img src="/Users/lipidong/Desktop/result/m8_result.png" width = "500" height = "120" alt="dnds_result" align=center />
+
+

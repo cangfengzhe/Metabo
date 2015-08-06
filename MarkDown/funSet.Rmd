@@ -1,5 +1,5 @@
 ---
-title: "R语言常用函数集合"
+title: "利用R语言对RNA-Seq进行探索分析与差异表达分析"
 author: "By Pidong Li  2014-12-22 "
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -8,151 +8,155 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 layout: post
-description: "R biostatiscitc  bioinformation bioconductor 生物信息学 生物统计 R语言 笔记 学习 "
+description: "二代测序 NGS RNA-Seq R biostatiscitc  bioinformation bioconductor 生物信息学 生物统计 R语言 笔记 学习 "
 category: [R]
-avatarimg: "http://cangfengzhe.github.io/img/"
-tags : [ R ,函数]
+tags : [NGS, bioinformatics]
 ---
 
 
-
-
-
-### melt
-```r
-melt(data, id.vars, measure.vars,
-  variable.name = "variable", ..., na.rm = FALSE, value.name = "value",
-  factorsAsStrings = TRUE)
-```
-id.vars 表示固定不变的列
-measure.vars 控制变量,需要处理的列，将这些列名作为某一列的数值
-variable.name 重塑后控制变量的列名
-value.name 重塑后数值变量的列名
->如果data为matrix格式，则不执行上述标准，变成行列的对应值
-
-```{r, echo=FALSE}
-library(reshape2)
-example(melt)
+```{r style, echo=FALSE, message=FALSE, warning=FALSE, results="asis" }
+library("BiocStyle")
+library("knitr")
+options(width=100)
+options('tidy'=TRUE)
+opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE)
 ```
 
-### cast
-```r
-dcast(data, formula, fun.aggregate = NULL, ..., margins = NULL,
-  subset = NULL, fill = NULL, drop = TRUE,
-  value.var = guess_value(data))
-```
-这是一个变宽的函数，将某一列的数值成列名
-formula 就是 恒定列~改变的列（此列的数值变成列名） 
+### 介绍
+本文参考 bioconductor 中RNA-Seq workflow: gene-level exploratory analysis and differential expression并对其根据需要进行了增减。
 
-acast(aqm, day ~ month ~ variable) 
- day为固定不变的列，month列中的值变为扩展列的列名， variable列中的数值拆分成第三维的数据，按照list进行输出
+> 更多细节还请参考 http://www.bioconductor.org/help/workflows/rnaseqGene/
 
-acast(aqm, month ~ variable, mean, margins = TRUE) 
- month为固定不变的列，variable列中数值拆分成扩展列的列名，此时对于month对应多个day，可以进行 mean操作（也就是fun.aggregate）， margin 可以自己体会
+### 试验数据
 
-acast(chick_m, chick ~ time, mean, subset = .(time < 10 & chick < 20))
-subset对变量进行限制。 '.'函数将变量 time， chick 当做字符串来操作而不是他们代表的数值
-```{r, echo=FALSE}
-library(reshape2)
-example(cast)
-```
+数据来源
+> Himes BE, Jiang X, Wagner P, Hu R, Wang Q, Klanderman B, Whitaker RM, Duan Q, Lasky-Su J, Nikolos C, Jester W, Johnson M, Panettieri R Jr, Tantisira KG, Weiss ST, Lu Q. “RNA-Seq Transcriptome Profiling Identifies CRISPLD2 as a Glucocorticoid Responsive Gene that Modulates Cytokine Function in Airway Smooth Muscle Cells.” PLoS One. 2014 Jun 13;9(6):e99625. PMID: 24926665. GEO: GSE52778.
 
-### each
-```r
-each(min, max)(1:10)
-```
-来自plyr包，多个函数同时使用。
-```{r, echo=FALSE}
-library(reshape2)
-example(each)
-```
-### .
-来自plyr包
-  .变量名 = ‘变量名’， 不表示变量的值
+在这个RNA-Seq试验中，采用了4种呼吸道平滑肌肉细胞（airway smooth muscle cells），每种细胞均有 地塞米松治疗、非治疗两类。共计8个样本，储存在 airway 包中。
+#### 原始数据的处理
 
+高通量测序数据常采用 FASTQ 格式来保 存所测的碱基读段和质量分数。如图 所示,FASTQ 格式以测序读段为单位存 储,每条读段占 4 行,其中第一行和的第三行由文件识别标志和读段名(ID)组成(第一行以“@”开头而第三行以“+”开头;第三行中 ID 可以省略,但“+”不能省 略),第二行为碱基序列,第四行为各碱基所对应的测序质量分数序列。
 
-### gc
-用于垃圾回收
+![fastq描述](../img/fastq.png)
 
-### cSplit
+采用 tophat/bowtie2 将原始数据fastq映射到基因组序列，得到bam文件；
+此处我们采用airway 自带的bam文件。
 
-```r
-cSplit(indt, splitCols, sep = ",", direction = "wide", fixed = TRUE,
-  drop = TRUE, stripWhite = TRUE, makeEqual = NULL, type.convert = TRUE)
+#### 加载 airway 包, 并利用自带bam文件
+```{r}
+library("airway")
+dir <- system.file("extdata", package="airway", mustWork=TRUE)
+list.files(dir) # 文件列表
+csvfile <- file.path(dir,"sample_table.csv")
+(sampleTable <- read.csv(csvfile,row.names=1)) # 获取样本信息
+filenames <- file.path(dir, paste0(sampleTable$Run, "_subset.bam")) # 提取bam文件
 ```
 
-来自splitstackshape包，将单元格的数据进行变长变宽操作.拆分单元格，并将其他单元格数据重复显示。
-indt为输入变量，data.frame或data.table
-splitCols 为操作的列，对此列中的单元格进行操作
-seq 分隔符， 对单元格中的数据安装seq进行分割
-direction 操作方式， ‘wide'表示变宽，新增加列，来分割单元格，  ‘long’ 表示变长， 即单元格分割后进入下一列，其他列数据复制进入下一列。
-
-```{r, echo=FALSE}
-library(splitstackshape)
-example(cSplit)
+### 获取bam数据
+```{r}
+library("Rsamtools")
+filenames  
+bamfiles <- BamFileList(filenames, yieldSize=2000000) #  将bam文件放入列表，yieldSize 表示每次被读取的记录数
+seqinfo(bamfiles) # 序列的基本信息
+seqlevels(bamfiles) # 所有的染色体名称， GLxxxxxx.x表示genomic contig
 ```
 
-### reverse 
-来自 IRanges， 将字符串倒置
-```{r, echo=FALSE}
-library(IRanges)
-example(reverse)
+### 导入基因组特征（注释）
+eg. 外显子的染色体位置， 基因的起始、终止位点
+```{r}
+library("GenomicFeatures")
+gtffile <- file.path(dir,"Homo_sapiens.GRCh37.75_subset.gtf")
+(txdb <- makeTxDbFromGFF(gtffile, format="gtf"))
+(genes <- exonsBy(txdb, by="gene"))
+seqlevels(genes) # 染色体的名字
+```
+染色体的名称 `seqlevels(bamfiles)` 与 `seqlevels(genes)` 应该保持一致， 特别留意是否含有 "chr", 要么都有"chr", 要么都没有。
+
+> 注意，这里采用了一个基因组注释文件的子集， 完整的信息可以从
+ftp://ftp.ensembl.org/pub/release-75/gtf/ 获取
+
+### 基因计数
+```{r, tidy = TRUE}
+library("GenomicAlignments")
+se <- summarizeOverlaps(features = genes, reads = bamfiles,
+                        mode = "Union",  # 读段覆盖的模式
+                        singleEnd=FALSE, #双末端 not 单末端
+                        ignore.strand=TRUE,# True 表示忽略±链的限制
+                        fragments=TRUE  ) # 只应用于双末端测序,true表示非成对的对端应该被计数
+class(se) # 得到 SummarizedExperiment 数据，可用于后续计算
 ```
 
-### complement， reverseComplement
-来自Biostrings包 complement 对DNA，RAN取互补链，reverseComplement 取互补链后倒置
-此函数接受变量必须为 DNAString() 或 RNAString()
+![tu](../figure/sumexp-1.png)
 
-### DNAString RNAString
-来自Biostring包， 对DNA， RNA序列进行操作，同时可以组合进行dna2rna的转换  
-dna2rna() = RNAString(DNAString())
+上图显示的是SummarizedExperiment类(以及他的子类DESeqDataSet)的布局, 粉红色 `assay(se)` 表示实际的数据， 每行为一个基因，每列为一个样本；
+`colData` 表示样本的具体信息，随后我们会对它进行填充；`rowRanges` 表示每一个基因的信息。具体如下
 
-
-### writeLines 
-```r
-writeLines(text, con = stdout(), sep = "\n", useBytes = FALSE)
-```
-来自base包, text 为你要写入的字符串， con 表示一个文件里连接， 可以直接写入文件的路径，但是这样的话以前的内容会被重写，如果想附加到之前的内容后面，可以用file（path， open = 'a'）来定义一个文件连接。
-> 需要注意的是如果使用file(),使用完writeLines后必须，close（文件连接）否则缓存不会写入文件
-
-### as.charactor(), as.numeric()
-
-> 如果要把因子型变量 coercion to 数值型，一定要先as.charactor(), 再 as.numeric(), 直接as.numeric(),因子型变量会按照1，2，3...的顺序去赋值，后果不堪设想。
-
-### chartr
-```r
-chartr(old, new, x)
-```
-来自base包，用new替换old， 类似于sub
-
-### apropos
-```r
-apropos("\\.test$")
-```
-utils包，寻找当前状态下，以.test结尾(regular expression)的函数
-```{r, echo=FALSE}
-apropos("\\.test$")
+```{r}
+se
+head(assay(se))
+colSums(assay(se))
+colData(se)
+rowRanges(se)
+str(metadata(rowRanges(se)))
+(colData(se) <- DataFrame(sampleTable)) # 填充样本的具体信息，方便后续分组，寻找差异基因
 ```
 
-### interp
+> 注意：此处得到的数据需要采用EDSeq2包进行差异分析，所以不对数据进行标准化，切记。
+
+### 差异表达基因分析
+
+我们采用 DESeq2 包进行，差异表达基因的分析
+
+```
+# 此步采用 airway 包自带的se数据进行后续操作，可以忽略。如果没有进行上面的步骤也可以直接采用下面的数据进行后续操作。
+data("airway")
+se <- airway
+
+```
+
+```{r}
+library("DESeq2")
+dds <- DESeqDataSet(se, design = ~ cell + dex) # design 参数为 formula，此处为cell和dex两个因素，~ cell + dex表示我们想控制cell研究dex的影响。
+
+```
+
+采用DESeqDataSetFromMatrix函数从matrix中获取数据
 
 ```r
-interp(~ x + y, x = 10)
-interp(lazy(x + y), x = 10)
-interp(quote(x + y), x = 10)
-interp("x + y", x = 10)
+countdata <- assay(se)  # 可以根据自己的需要填充自己的数据（matrix格式），这里以assay(se)为例
+class(countdata)
+head(countdata)
+coldata <- colData(se)
+(ddsMat <- DESeqDataSetFromMatrix(countData = countdata,
+                                 colData = coldata,
+                                 design = ~ cell + dex))
+
 ```
-lazyeval包中的函数。 说实话，不理解这个函数，也不理解Non-Standard, 开始理解错了，以后补上吧。
-```{r,echo=F}
-library(lazyeval)
-example(interp)
+
+```{r}
+dds$dex <- relevel(dds$dex, "untrt") # 将 untrt 定义为dex因素的第一水平，随后的foldchange 将采用 trt/untrt
+dds <- DESeq(dds)
+(res <- results(dds)) # 得到结果，可以根据padj来挑选合适的差异表达基因，log2FoldChange来确定基因上调还是下调，pvalue的校正采用了Benjamini-Hochberg方法，具体见 ?p.adjust
+
+mcols(res, use.names=TRUE)
+summary(res)
+
+```
+保存数据
+```r
+write.csv(res, file = '/your/path/')
+```
+
+sessionInfo
+```{r}
+sessionInfo()
 ```
 
 
 
 ```r
 library(knitr)
-knit('/Users/lipidong/baiduyun/work/RFile/MarkDown/funSet.Rmd', output = '~/learn/blog/_posts/2015-04-12-funSet.md')
+knit('/Users/lipidong/baiduyun/work/RFile/MarkDown/funSet.Rmd', output = '~/learn/blog/_posts/2015-06-17-RNA-Seq.md')
 ```
 
 

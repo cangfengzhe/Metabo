@@ -23,9 +23,9 @@ count.table <- easyRNASeq(filesDirectory=system.file(
     "data",
     "gAnnot.rda",
     package="RnaSeqTutorial"),
-  count="exons"
-)
-
+  count="exons",
+ # normalize = T
+   )
 
 ###################################################
 ### code chunk number 3: Show the results
