@@ -1,0 +1,70 @@
+---
+title: "R语言实现路径分析"
+author: "By Pidong Li"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+layout: post
+description: "结构方程模型 通径分析 R biostatiscitc  bioinformation bioconductor 生物信息学 生物统计 R语言 笔记 学习 "
+category: [R]
+tags : [ R , machine learning]
+---
+
+结构方程模型（Structural Equation Modeling,SEM)是一种建立、估计和检验因果关系模型的方法。模型中既包含有可观测的显在变量，也可能包含无法直接观测的潜在变量。结构方程模型可以替代多重回归、通径分析、因子分析、协方差分析等方法，清晰分析单项指标对总体的作用和单项指标间的相互关系。本文主要应用R语言的sem包实现路径分析.
+> 如当自变量数目比较多，且自变量间相互关系比较复杂（如：有些自变量间的关系是相关关系，有些自变量间则可能是因果关系）或者某些自变量是通过其他的自变量间接地对因变量产生影响，这时可以采用通径分析。
+
+```{r}
+library(sem)
+library(dplyr)
+# 随机生成数据
+dat <- matrix(rnorm(100), 25, 4) # 25*4 矩阵
+colnames(dat) <- c('a', 'b', 'c', 'd') # 分配列名
+cor_num <- cor(dat) # 计算相关性矩阵
+
+# 构建模型
+# 我们假设 变量a 通过b, c 影响 d
+  model.kerch <- specifyModel(
+    # sem包是以文本的形式提交, 路径关系
+    # 默认所有变量都是观测变量
+    # 第一列表示路径
+    #第二列表示回归系数,可以先假定一个任意变量, 模型随后进行修正赋值; 第三列为自由参数的起始值, 没有可设置为NA sem会计算起始值
+    # 下面的变量, 如果存在于数据中, 则为观测变量, 否则为潜在变量
+    text = '
+      a -> b, a_b, NA
+      a -> c, a_c, NA
+      a -> d, a_d, NA
+      b -> d, b_d, NA
+      b -> c, b_c, NA
+      c -> d, c_d, NA
+      a <-> a, a_a, NA
+      b <-> b, b_b, NA
+      c <-> c, c_c, NA
+      d <-> d, d_d, NA
+    ')
+  # 最后四行表示变量自身的影响
+  # 构建sem
+  # 第二个参数可以直接使用相关性矩阵,或者协方差矩阵
+  out_sem <- sem(model.kerch, cor_num, nrow(dat))
+  # 回归系数
+  coef <- out_sem$coeff
+  # 系数名
+  coeff_name <- out_sem$semmod[,1]
+  summary(out_sem)
+  
+  # 构建路径图
+  pathDiagram(out_sem, edge.labels="values")
+```
+
+> note that: 采用sem来做
+
+```r
+library(knitr)
+knit('/Users/lipidong/baiduyun/work/RFile/learn/rmd/sem_with_r.rmd', output = '/Users/lipidong/learn/blog/_posts/2015-11-09-sem_with_r.md')
+```
+
+
+
+
